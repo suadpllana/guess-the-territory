@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>logo</title>
+<style>
+  @font-face { font-family: 'Lilita'; src: url('/node_modules/@fontsource/lilita-one/files/lilita-one-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Fredoka'; font-weight: 700; src: url('/node_modules/@fontsource/fredoka/files/fredoka-latin-700-normal.woff2') format('woff2'); }
+  html, body { margin: 0; background: transparent; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+import { drawPinBody, pinPath } from '/src/map/renderer.ts';
+import { themeById } from '/src/map/themes.ts';
+
+const q = new URLSearchParams(location.search);
+const tagline = q.get('tagline');
+const W = 1600, H = tagline ? 640 : 520;
+const canvas = document.getElementById('c');
+canvas.width = W; canvas.height = H;
+const ctx = canvas.getContext('2d');
+const theme = themeById('classic');
+const NAVY = '#1d2742';
+
+function silhouette(src, color) {
+  const c = document.createElement('canvas');
+  c.width = src.width; c.height = src.height;
+  const g = c.getContext('2d');
+  g.drawImage(src, 0, 0);
+  g.globalCompositeOperation = 'source-in';
+  g.fillStyle = color; g.fillRect(0, 0, c.width, c.height);
+  return c;
+}
+function dilate(img, x, y, radius, steps = 28) {
+  for (let i = 0; i < steps; i++) {
+    const a = (i / steps) * Math.PI * 2;
+    ctx.drawImage(img, x + Math.cos(a) * radius, y + Math.sin(a) * radius);
+  }
+  ctx.drawImage(img, x, y);
+}
+
+document.fonts.load('100px Lilita').then(async () => {
+  await document.fonts.load('700 100px Fredoka');
+  const F = 300;
+  ctx.font = `${F}px Lilita`;
+  ctx.lineJoin = 'round';
+  ctx.textBaseline = 'alphabetic';
+  const wMap = ctx.measureText('Map').width;
+  const wP = ctx.measureText('P').width;
+  const wp = ctx.measureText('p').width;
+  const gap = F * 0.22;
+  const pinSize = F * 0.95;
+  const pinW = pinSize * 0.8;
+  const total = wMap + gap + wP + pinW + wp;
+  let x = (W - total) / 2;
+  const base = F * 0.95 + 40;
+  const pieces = [
+    { t: 'Map', x, c: ['#6fd0ff', '#2a8cff'] },
+    { t: 'P', x: x + wMap + gap, c: ['#ffe36b', '#ffae1f'] },
+    { t: 'p', x: x + wMap + gap + wP + pinW, c: ['#ffe36b', '#ffae1f'] },
+  ];
+  const pinX = x + wMap + gap + wP + pinW / 2;
+  const pinY = base + F * 0.08;
+
+  const pinTip = (dx, dy) => { ctx.save(); ctx.translate(pinX + dx, pinY + dy); pinPath(ctx, pinSize); ctx.restore(); };
+
+  // 1) white sticker border around everything
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = F * 0.24;
+  for (const p of pieces) ctx.strokeText(p.t, p.x, base);
+  pinTip(0, 0); ctx.stroke();
+  // 2) navy extrusion + outline
+  ctx.fillStyle = NAVY; ctx.strokeStyle = NAVY; ctx.lineWidth = F * 0.12;
+  for (const p of pieces) { ctx.strokeText(p.t, p.x, base + F * 0.07); ctx.fillText(p.t, p.x, base + F * 0.07); }
+  pinTip(0, F * 0.07); ctx.fill(); ctx.stroke();
+  for (const p of pieces) ctx.strokeText(p.t, p.x, base);
+  pinTip(0, 0); ctx.stroke();
+  // 3) fills: vertical gradient, lighter at the top
+  for (const p of pieces) {
+    const g = ctx.createLinearGradient(0, base - F * 0.78, 0, base);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(0.18, p.c[0]);
+    g.addColorStop(1, p.c[1]);
+    ctx.fillStyle = g;
+    ctx.fillText(p.t, p.x, base);
+  }
+  ctx.save(); ctx.translate(pinX, pinY); drawPinBody(ctx, pinSize, theme, 'happy'); ctx.restore();
+
+  if (tagline) {
+    ctx.font = `700 ${F * 0.3}px Fredoka`;
+    ctx.textAlign = 'center';
+    const ty = base + F * 0.55;
+    ctx.lineWidth = F * 0.09; ctx.strokeStyle = '#fff'; ctx.strokeText(tagline, W / 2, ty);
+    ctx.lineWidth = F * 0.05; ctx.strokeStyle = NAVY; ctx.strokeText(tagline, W / 2, ty);
+    ctx.fillStyle = '#fff'; ctx.fillText(tagline, W / 2, ty);
+  }
+  // trim transparent margins (keep a small pad)
+  const img = ctx.getImageData(0, 0, W, H).data;
+  let x0 = W, y0 = H, x1 = 0, y1 = 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (img[(y * W + x) * 4 + 3] > 8) {
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+  }
+  const pad = 16;
+  const tw = x1 - x0 + 1 + pad * 2, th = y1 - y0 + 1 + pad * 2;
+  const copy = document.createElement('canvas');
+  copy.width = W; copy.height = H;
+  copy.getContext('2d').drawImage(canvas, 0, 0);
+  canvas.width = tw; canvas.height = th;
+  ctx.drawImage(copy, x0 - pad, y0 - pad, tw, th, 0, 0, tw, th);
+  document.title = 'ready';
+});
+</script>
+</body>
+</html>

@@ -17,9 +17,12 @@
     "data:build": "node tools/geo/build.mjs",
     "test": "node tools/test/e2e.mjs",
     "shots": "node tools/test/shots.mjs",
-    "thumbnail": "node tools/thumbnail/render.mjs"
+    "thumbnail": "node tools/thumbnail/render.mjs",
+    "test:ads": "node tools/test/ads.mjs"
   },
   "devDependencies": {
+    "@fontsource/fredoka": "5.3.0",
+    "@fontsource/lilita-one": "5.3.0",
     "countries-and-timezones": "3.10.0",
     "playwright-core": "1.56.1",
     "topojson-server": "3.0.1",

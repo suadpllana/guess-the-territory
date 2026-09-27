@@ -217,7 +217,12 @@ export class Renderer {
 
 // ---------- pin, ripple, clouds (screen space) ----------
 
-/** Classic map pin with its tip at (x, y). drop: pixels above ground; squash: 1 = normal. */
+export type Mood = 'idle' | 'happy' | 'sad';
+
+/**
+ * The mascot: a map pin with a face, tip at (x, y). drop: pixels above the
+ * ground; squash: 1 = normal; look: -1..1 pupils left/right; blink: 0..1.
+ */
 export function drawPin(
   surf: Surface,
   x: number,
@@ -226,21 +231,30 @@ export function drawPin(
   drop: number,
   squash: number,
   theme: Theme,
-  alpha = 1
+  alpha = 1,
+  mood: Mood = 'idle',
+  blink = 0,
+  look = 0
 ): void {
   const { ctx, dpr } = surf;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.globalAlpha = alpha;
   // shadow shrinks as the pin rises
   const sh = Math.max(0.25, 1 - drop / (size * 4));
-  ctx.fillStyle = `rgba(20, 30, 50, ${0.28 * sh})`;
+  ctx.fillStyle = `rgba(20, 30, 50, ${0.26 * sh})`;
   ctx.beginPath();
-  ctx.ellipse(x, y, size * 0.32 * sh, size * 0.1 * sh, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y, size * 0.28 * sh, size * 0.085 * sh, 0, 0, Math.PI * 2);
   ctx.fill();
-
   ctx.save();
   ctx.translate(x, y - drop);
   ctx.scale(1 / Math.sqrt(squash), squash);
+  drawPinBody(ctx, size, theme, mood, blink, look);
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
+
+/** Pin outline with its tip at the origin. */
+export function pinPath(ctx: CanvasRenderingContext2D, size: number): void {
   const r = size * 0.36;
   const cy = -size + r;
   ctx.beginPath();
@@ -249,6 +263,20 @@ export function drawPin(
   ctx.arc(0, cy, r, Math.PI, 0);
   ctx.bezierCurveTo(r, cy + r * 0.62, r * 0.35, -size * 0.28, 0, 0);
   ctx.closePath();
+}
+
+/** Pin body, shine and face with the tip at the origin (no ground shadow). */
+export function drawPinBody(
+  ctx: CanvasRenderingContext2D,
+  size: number,
+  theme: Theme,
+  mood: Mood = 'idle',
+  blink = 0,
+  look = 0
+): void {
+  const r = size * 0.36;
+  const cy = -size + r;
+  pinPath(ctx, size);
   const grad = ctx.createLinearGradient(-r, cy - r, r, 0);
   grad.addColorStop(0, theme.pin);
   grad.addColorStop(1, theme.pinDark);
@@ -257,17 +285,81 @@ export function drawPin(
   ctx.lineWidth = Math.max(1, size * 0.045);
   ctx.strokeStyle = 'rgba(0,0,0,0.18)';
   ctx.stroke();
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(0, cy, r * 0.42, 0, Math.PI * 2);
-  ctx.fill();
-  // highlight
   ctx.fillStyle = 'rgba(255,255,255,0.35)';
   ctx.beginPath();
-  ctx.ellipse(-r * 0.45, cy - r * 0.45, r * 0.22, r * 0.14, -0.7, 0, Math.PI * 2);
+  ctx.ellipse(-r * 0.55, cy - r * 0.55, r * 0.2, r * 0.12, -0.7, 0, Math.PI * 2);
   ctx.fill();
-  ctx.restore();
-  ctx.globalAlpha = 1;
+  drawFace(ctx, cy, r, mood, blink, look);
+}
+
+function drawFace(ctx: CanvasRenderingContext2D, cy: number, r: number, mood: Mood, blink: number, look: number): void {
+  const ex = r * 0.36;
+  const ey = cy - r * 0.08;
+  const ink = '#2a1320';
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(1.2, r * 0.13);
+  if (mood === 'happy') {
+    // ^ ^ eyes
+    for (const s of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(s * ex - r * 0.17, ey + r * 0.06);
+      ctx.quadraticCurveTo(s * ex, ey - r * 0.2, s * ex + r * 0.17, ey + r * 0.06);
+      ctx.stroke();
+    }
+  } else {
+    for (const s of [-1, 1]) {
+      const open = 1 - blink;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.ellipse(s * ex, ey, r * 0.2, Math.max(r * 0.03, r * 0.25 * open), 0, 0, Math.PI * 2);
+      ctx.fill();
+      if (open > 0.3) {
+        ctx.fillStyle = ink;
+        ctx.beginPath();
+        const py = mood === 'sad' ? ey + r * 0.08 : ey + r * 0.02;
+        ctx.arc(s * ex + look * r * 0.07, py, r * 0.11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(s * ex + look * r * 0.07 + r * 0.04, py - r * 0.05, r * 0.035, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (mood === 'sad') {
+        // worried brows
+        ctx.beginPath();
+        ctx.moveTo(s * ex - s * r * 0.2, ey - r * 0.36);
+        ctx.lineTo(s * ex + s * r * 0.14, ey - r * 0.28);
+        ctx.stroke();
+      }
+    }
+  }
+  // mouth
+  const my = cy + r * 0.34;
+  ctx.beginPath();
+  if (mood === 'happy') {
+    ctx.fillStyle = ink;
+    ctx.moveTo(-r * 0.24, my - r * 0.04);
+    ctx.quadraticCurveTo(0, my + r * 0.34, r * 0.24, my - r * 0.04);
+    ctx.closePath();
+    ctx.fill();
+  } else if (mood === 'sad') {
+    ctx.moveTo(-r * 0.14, my + r * 0.08);
+    ctx.quadraticCurveTo(0, my - r * 0.06, r * 0.14, my + r * 0.08);
+    ctx.stroke();
+  } else {
+    ctx.moveTo(-r * 0.15, my - r * 0.02);
+    ctx.quadraticCurveTo(0, my + r * 0.13, r * 0.15, my - r * 0.02);
+    ctx.stroke();
+  }
+  // cheeks
+  ctx.fillStyle = 'rgba(255, 170, 190, 0.55)';
+  for (const s of [-1, 1]) {
+    ctx.beginPath();
+    ctx.ellipse(s * r * 0.62, cy + r * 0.2, r * 0.13, r * 0.08, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 export function drawRipple(surf: Surface, x: number, y: number, r: number, alpha: number, color: string): void {

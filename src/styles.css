@@ -776,6 +776,13 @@ button {
   color: var(--gold);
 }
 
+.inline-icon svg {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.25em;
+  color: #f0a400;
+}
+
 .banner-stars {
   display: flex;
   justify-content: center;

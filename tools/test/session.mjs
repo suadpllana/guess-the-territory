@@ -1,8 +1,9 @@
 // Plays several levels automatically (dev server, ?speed=) and screenshots each new situation.
 import fs from 'node:fs';
-import { chromium } from 'playwright-core';
+import { devServer, launch } from './harness.mjs';
 
-const base = process.env.BASE || 'http://localhost:5173/';
+const server = await devServer();
+const base = server.url + '/';
 const out = process.argv[2] || '/tmp/session';
 const [w, h] = (process.env.SIZE || '390x844').split('x').map(Number);
 const levels = Number(process.env.LEVELS || 7);
@@ -11,7 +12,7 @@ const query = process.env.Q || '?home=BR&lang=en&speed=3';
 const touch = process.env.TOUCH === '1';
 fs.mkdirSync(out, { recursive: true });
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const browser = await launch();
 const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, hasTouch: touch, isMobile: touch });
 const page = await ctx.newPage();
 const errors = [];
@@ -92,3 +93,4 @@ const final = await state();
 console.log('answered', answered, 'final', JSON.stringify(final), 'secs', Math.round((Date.now() - t0) / 1000));
 console.log('errors:', errors.length ? errors.slice(0, 10) : 'none');
 await browser.close();
+await server.close();

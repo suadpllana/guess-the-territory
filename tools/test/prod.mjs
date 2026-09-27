@@ -1,7 +1,7 @@
 // Loads a built zip served from a sub-path and plays a few rounds (no dev handles).
-import { chromium } from 'playwright-core';
+import { devServer, launch } from './harness.mjs';
 const url = process.argv[2];
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const browser = await launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 const errors = [];
 const failed = [];

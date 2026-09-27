@@ -388,7 +388,16 @@ export class MapView {
       const k = (dt - fall) / 0.7;
       drawRipple(this.fx, x, y, 8 + k * size * 1.4, (1 - k) * 0.7, this.theme.pin);
     }
-    drawPin(this.fx, x, y, size, drop, squash, this.theme, this.pinAlpha);
+    // mascot mood follows the answer; happy pins hop, idle pins blink
+    const mood = this.look === 'ask' ? 'idle' : this.look === 'good' ? 'happy' : 'sad';
+    const since = (clock.now - this.lookAt) / 1000;
+    if (mood === 'happy' && since < 0.9 && dt > fall + 0.34) {
+      drop += Math.abs(Math.sin(since * Math.PI * 3.3)) * size * 0.35 * (1 - since / 0.9);
+    }
+    const tb = (clock.now / 1000) % 3.7;
+    const blink = mood === 'idle' && tb > 3.55 ? Math.sin(((tb - 3.55) / 0.15) * Math.PI) : 0;
+    const look = mood === 'idle' ? Math.sin(clock.now / 900) * 0.8 : 0;
+    drawPin(this.fx, x, y, size, drop, squash, this.theme, this.pinAlpha, mood, blink, look);
   }
 
   private placeLabels(): void {

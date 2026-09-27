@@ -407,7 +407,8 @@ export class Game {
       title: t('level_done'),
       stars,
       sub: gain ? `+1 <span class="inline-icon">${ICON.bulb}</span>` : '',
-      ms: 1450,
+      // keep early cards short: every card is an exit point
+      ms: plan.level <= 2 ? 1000 : 1350,
       tone: 'gold',
     });
   }
@@ -779,7 +780,15 @@ export class Game {
       this.ui.float(from[0], from[1] - this.ui.u * 5, `${t('new')} ${ICON.globe}${this.collected.size}`, 'new');
       sound.sparkle();
     }, 280);
-    const unlocked = THEMES.find((th) => th.unlock > 0 && th.unlock === this.collected.size);
+    const count = this.collected.size;
+    const unlocked = THEMES.find((th) => th.unlock > 0 && th.unlock === count);
+    if (!unlocked && (count === 10 || count === 50 || count === 75 || count === 125 || count === 175 || count === this.world.quiz.length)) {
+      window.setTimeout(() => {
+        this.ui.toast(`${ICON.globe}${count} · ${t('atlas')}`, 'green');
+        sound.sparkle();
+        Poki.measure('atlas', String(count), 'reached');
+      }, 650);
+    }
     if (unlocked) {
       window.setTimeout(() => {
         this.ui.toast(`${ICON.star}${t('unlocked')}`, 'gold');
