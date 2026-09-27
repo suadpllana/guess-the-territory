@@ -33,7 +33,7 @@ const vp = { x: 0, y: 0, w, h };
 let view;
 if (code === 'WORLD') view = { x: 0.5, y: 0.45, z: Math.log2(w / 1.0) };
 else {
-  const minSpan = 350 / kmPerUnit((f.frame[1] + f.frame[3]) / 2);
+  const minSpan = Math.max(350, f.ctx || 0) / kmPerUnit((f.frame[1] + f.frame[3]) / 2);
   view = fitBox(f.frame, vp, 0.72, minSpan);
   view.z += Math.log2(zoomMul);
 }
@@ -46,6 +46,7 @@ if (f) {
 }
 const t3 = performance.now();
 const t4 = t3;
+window.__quiz = world.quiz.map((q) => q.code).sort();
 window.__stats = { decode: t1 - t0, firstDraw: t3 - t2, warmDraw: t4 - t3, lod: world.lodFor(2 ** view.z), quiz: world.quiz.length, features: world.features.length };
 document.title = 'ready';
 </script>

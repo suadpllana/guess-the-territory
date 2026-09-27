@@ -152,7 +152,7 @@ export class Renderer {
     const rect = this.visibleRect(surf, view, vp);
     const b = hl.feature.bbox;
     const path = this.world.path(hl.feature, lod);
-    const outline = this.world.outline(hl.feature, Math.max(0, lod - 1), 5 * (1 / s));
+    const outline = this.world.outline(hl.feature, Math.max(0, lod - 1), 12 / s);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     for (let k = Math.floor(rect[0]) - 1; k <= Math.floor(rect[2]) + 1; k++) {

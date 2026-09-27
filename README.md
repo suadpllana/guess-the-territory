@@ -85,6 +85,8 @@ npm run dev          # http://localhost:5173  (?home=BR&lang=pt to test a countr
 npm test             # SDK call order (mock SDK) + automated playthrough to level 5
 npm run test:ads     # ads build: midroll timing, rewarded hint and continue
 npm run shots        # screenshots at Poki's reference sizes -> tools/.cache/shots
+npm run qa:countries # every quiz country as the game frames it -> tools/.cache/contact
+npm run perf         # frame times under CPU throttling (RATE=6 by default)
 npm run thumbnail    # re-render store/ assets with the game's own renderer (needs ffmpeg with libx264 in PATH, or FFMPEG=/path/to/ffmpeg)
 ```
 
