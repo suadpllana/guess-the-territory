@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#a6d4fa" />
+    <title>Map Pop</title>
+    <link rel="icon" href="data:," />
+    <script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
+    <style>
+      html,body{margin:0;height:100%;background:#a6d4fa;overflow:hidden}
+      #boot{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#a6d4fa;transition:opacity .5s;font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif}
+      #boot.gone{opacity:0;pointer-events:none}
+      #boot .logo{display:flex;flex-direction:column;align-items:center;gap:8px;animation:bootpop .6s cubic-bezier(.2,1.5,.4,1) both}
+      #boot svg{width:64px;height:64px;filter:drop-shadow(0 6px 8px rgba(20,40,90,.25));animation:bootpin 1.2s ease-in-out infinite}
+      #boot b{font-size:42px;font-weight:900;color:#fff;letter-spacing:.02em;text-shadow:0 3px 0 #4b8fd6,0 6px 16px rgba(20,40,90,.3)}
+      #boot.error p{max-width:80vw;color:#1d2742;font:700 18px system-ui,sans-serif;text-align:center}
+      @keyframes bootpop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+      @keyframes bootpin{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="map-base"></canvas>
+      <div id="labels"></div>
+      <canvas id="map-fx"></canvas>
+      <div id="ui"></div>
+      <canvas id="fx"></canvas>
+    </div>
+    <div id="boot">
+      <div class="logo">
+        <svg viewBox="0 0 48 64" aria-hidden="true"><path d="M24 62C24 62 4 38 4 22a20 20 0 0 1 40 0c0 16-20 40-20 40z" fill="#ff4757"/><circle cx="24" cy="22" r="8" fill="#fff"/></svg>
+        <b>Map Pop</b>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

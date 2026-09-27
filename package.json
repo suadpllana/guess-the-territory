@@ -1,0 +1,29 @@
+{
+  "name": "map-pop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Map Pop - guess the country from its territory on the map. HTML5 game for Poki.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "build:ads": "tsc --noEmit && vite build --mode ads",
+    "preview": "vite preview --port 4173",
+    "zip": "node tools/zip.mjs",
+    "poki": "npm run build && node tools/zip.mjs",
+    "poki:ads": "npm run build:ads && node tools/zip.mjs ads",
+    "data": "python3 tools/geo/prepare.py && node tools/geo/build.mjs && node tools/geo/tz.mjs",
+    "data:build": "node tools/geo/build.mjs",
+    "test": "node tools/test/e2e.mjs",
+    "shots": "node tools/test/shots.mjs",
+    "thumbnail": "node tools/thumbnail/render.mjs"
+  },
+  "devDependencies": {
+    "countries-and-timezones": "3.10.0",
+    "playwright-core": "1.56.1",
+    "topojson-server": "3.0.1",
+    "typescript": "5.9.3",
+    "vite": "8.3.1"
+  }
+}

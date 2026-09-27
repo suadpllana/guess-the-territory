@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>map debug</title>
+<style>html,body{margin:0;height:100%;overflow:hidden}canvas{position:absolute;inset:0;width:100%;height:100%}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+import { World, kmPerUnit } from '/src/geo/world.ts';
+import { Renderer, drawPin } from '/src/map/renderer.ts';
+import { fitBox, toScreen } from '/src/map/camera.ts';
+import { themeById } from '/src/map/themes.ts';
+const q = new URLSearchParams(location.search);
+const code = q.get('c') || 'IT';
+const pov = q.get('pov') || null;
+const zoomMul = parseFloat(q.get('zoom') || '1');
+const t0 = performance.now();
+const world = new World(pov);
+const t1 = performance.now();
+const canvas = document.getElementById('c');
+const dpr = window.devicePixelRatio || 1;
+const w = innerWidth, h = innerHeight;
+canvas.width = w * dpr; canvas.height = h * dpr;
+const ctx = canvas.getContext('2d');
+const surf = { ctx, w, h, dpr };
+const r = new Renderer(world);
+const theme = themeById(q.get('theme') || 'classic');
+const f = world.byCode.get(code);
+const vp = { x: 0, y: 0, w, h };
+let view;
+if (code === 'WORLD') view = { x: 0.5, y: 0.45, z: Math.log2(w / 1.0) };
+else {
+  const minSpan = 350 / kmPerUnit((f.frame[1] + f.frame[3]) / 2);
+  view = fitBox(f.frame, vp, 0.72, minSpan);
+  view.z += Math.log2(zoomMul);
+}
+const t2 = performance.now();
+r.drawBase(surf, view, vp, theme);
+if (f) {
+  r.highlight(surf, view, vp, { feature: f, fill: theme.targetFill, stroke: theme.target, width: 2.6, dash: true, dashOffset: 0, glow: 0.6 });
+  const [px, py] = toScreen(view, vp, f.label[0], f.label[1]);
+  drawPin(surf, px, py, 38, 0, 1, theme);
+}
+const t3 = performance.now();
+const t4 = t3;
+window.__stats = { decode: t1 - t0, firstDraw: t3 - t2, warmDraw: t4 - t3, lod: world.lodFor(2 ** view.z), quiz: world.quiz.length, features: world.features.length };
+document.title = 'ready';
+</script>
+</body>
+</html>
