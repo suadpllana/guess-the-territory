@@ -74,11 +74,14 @@ export class Picker {
     home: string | null
   ) {
     this.collected = new Set(save.collected);
-    const ok = (c: string | null): c is string => !!c && !!world.byCode.get(c)?.quiz;
-    if (save.sessions <= 1) {
+    const ok = (c: string | null): c is string => !!c && !!world.byCode.get(c)?.quiz && !this.collected.has(c);
+    // Until a player has answered 12 questions, open with their home country and
+    // Poki's biggest audiences (skipping ones they already know).
+    const left = 12 - save.answered;
+    if (left > 0) {
       const seq = [home, ...POKI_AUDIENCE.filter((c) => (DIFFICULTY.get(c) ?? 9) <= 2.5)];
-      this.opening = [...new Set(seq.filter(ok))].slice(0, 12);
-    } else if (home && ok(home) && !this.collected.has(home)) {
+      this.opening = [...new Set(seq.filter(ok))].slice(0, left);
+    } else if (ok(home)) {
       this.opening = [home];
     }
     save.missed.forEach((code, i) => this.revenge.push({ code, due: 4 + i * 3 }));

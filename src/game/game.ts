@@ -365,11 +365,8 @@ export class Game {
       this.ui.setDot(r, 'cur');
       await this.playRound(plan.modes[r % plan.modes.length], plan);
       if (this.hearts <= 0) {
-        const choice = await this.outOfHearts();
-        if (choice === 'retry') {
-          Poki.measure('level', pad(plan.level), 'fail');
-          return 'retry';
-        }
+        const choice = await this.outOfHearts(plan.level);
+        if (choice === 'retry') return 'retry';
       }
     }
     await this.levelComplete(plan);
@@ -426,16 +423,19 @@ export class Game {
     this.syncGameplay();
   }
 
-  private async outOfHearts(): Promise<'continue' | 'retry'> {
+  private async outOfHearts(level: number): Promise<'continue' | 'retry'> {
     if (!this.refillUsed) {
       // The first "death" of a session is absorbed with a free refill.
       this.refillUsed = true;
+      Poki.measure('level', pad(level), 'refill');
       this.hearts = 3;
       this.ui.setHearts(3, 3, 'gain');
       sound.sparkle();
       this.ui.toast(`${ICON.heart}${t('refill')}`, 'green');
       return 'continue';
     }
+    // A real death: counted as "fail" whether the player retries, continues or leaves.
+    Poki.measure('level', pad(level), 'fail');
     for (;;) {
       const pending = this.ui.showOutOfHearts(Poki.canReward());
       this.syncGameplay();

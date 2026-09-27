@@ -52,7 +52,7 @@ The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause m
 | Rewarded: video icon, not green, free option, no reward if blocked | 🎬 icon, orange button; "Try again" is always shown; hidden when the SDK is blocked or failed |
 | Mute + block input during ads | `adStarted()` mutes the WebAudio master and shows an input blocker |
 | Playable with SDK blocked | Every call no-ops; tested with the SDK unreachable |
-| Game Events | `level NN start/complete/fail`, `game input first`, `mode <id> first`, `hint token/rewarded used`, `reward continue granted`, `streak N reached`, `atlas N reached`, `unlock theme <id>`, `bonus blitz …`, `menu pause open` (no `/` or `^`, values ≤ 60 chars) |
+| Game Events | `level NN start/complete/fail/refill` (fail = died, so Poki's "left" means quit without dying), `game input first`, `mode <id> first`, `hint token/rewarded used`, `reward continue granted`, `streak N reached`, `atlas N reached`, `unlock theme <id>`, `bonus blitz …`, `menu pause open` (no `/` or `^`, values ≤ 60 chars) |
 | `captureError` | Global `error` / `unhandledrejection` handlers |
 | Full screen, every aspect ratio | Canvas covers the screen; bottom sheet in portrait, side card in landscape; checked at 640×360, 836×470, 1031×580, 1280×720, 390×844, 844×390 |
 | Poki pill (mobile, top-left) | HUD and prompt keep a 58 px gap on touch devices |
