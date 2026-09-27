@@ -13,6 +13,8 @@ A Google-Maps-style geography game for [Poki](https://developers.poki.com). The 
 
 ## Deploy to Poki (what you need to do)
 
+Ready-made zips for this version are already in [`release/`](release/): `map-pop-1.0.0-15eb1e5.zip` (ads off, for the Player Fit Test) and `map-pop-1.0.0-15eb1e5-ads.zip` (ads on, for release). To rebuild after changes:
+
 ```bash
 npm install
 npm run poki        # Player Fit Test build: ads OFF  -> release/map-pop-1.0.0-<commit>.zip

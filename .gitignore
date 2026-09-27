@@ -1,6 +1,7 @@
 node_modules/
 dist/
-release/
+release/*
+!release/map-pop-*.zip
 tools/.cache/
 *.log
 .DS_Store
