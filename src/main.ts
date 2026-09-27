@@ -128,7 +128,7 @@ async function boot(): Promise<void> {
     const dt = Math.min(100, now - last);
     last = now;
     clock.tick(dt * speed);
-    if (drifting) map.jump({ ...map.view, x: map.view.x + dt * 0.000012 });
+    if (drifting) map.jump({ ...map.view, x: map.view.x + dt * 0.000012 }, false);
     game.tick();
     map.update(dt);
     if (!clock.paused || map.dirty) map.draw();

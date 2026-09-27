@@ -152,7 +152,11 @@ export class MapView {
 
   // ---------- camera motion ----------
 
+  /** Starting a new camera motion cancels the previous one. */
+  private motion = 0;
+
   async flyTo(to: View, maxMs = 1700): Promise<void> {
+    const id = ++this.motion;
     const from = { ...this.view };
     const path = flight(from, to, this.vp);
     const dur = Math.max(450, Math.min(maxMs, 380 + path.length * 520));
@@ -160,12 +164,14 @@ export class MapView {
     this.flying = true;
     this.velocity = { x: 0, y: 0 };
     await clock.tween(dur, (t) => {
+      if (id !== this.motion) return;
       const v = path.at(ease.inOut(t));
       this.view = v;
       // clouds when the camera climbs above both endpoints
       this.altitude = Math.max(0, Math.min(1, (zMin - v.z - 0.4) / 1.6));
       this.baseDirty = true;
     });
+    if (id !== this.motion) return;
     this.view = { ...to, x: wrapX(to.x) };
     this.altitude = 0;
     this.flying = false;
@@ -173,19 +179,31 @@ export class MapView {
   }
 
   async zoomTo(to: View, ms: number, curve: (t: number) => number = ease.out): Promise<void> {
+    const id = ++this.motion;
+    this.flying = false;
+    this.altitude = 0;
     const from = { ...this.view };
     let tx = to.x;
     while (tx - from.x > 0.5) tx -= 1;
     while (tx - from.x < -0.5) tx += 1;
     await clock.tween(ms, (t) => {
+      if (id !== this.motion) return;
       const k = curve(t);
       this.view = { x: from.x + (tx - from.x) * k, y: from.y + (to.y - from.y) * k, z: from.z + (to.z - from.z) * k };
       this.baseDirty = true;
     });
   }
 
-  jump(v: View): void {
-    this.view = { ...v, x: wrapX(v.x) };
+  /** Place the camera immediately (also cancels any running flight). */
+  jump(v: View, cancel = true): void {
+    if (cancel) {
+      this.motion++;
+      this.flying = false;
+      this.altitude = 0;
+    }
+    const x = wrapX(v.x);
+    if (x === this.view.x && v.y === this.view.y && v.z === this.view.z) return;
+    this.view = { x, y: v.y, z: v.z };
     this.baseDirty = true;
   }
 

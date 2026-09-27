@@ -328,6 +328,7 @@ export class Game {
 
   /** Per-frame work driven by game time. */
   tick(): void {
+    if (clock.paused) return;
     if (this.reveal) {
       const r = this.reveal;
       const k = Math.min(1, (clock.now - r.t0) / r.dur);
@@ -679,7 +680,9 @@ export class Game {
       this.ui.markOption(pick, correct ? 'good' : 'bad');
       if (!correct) this.ui.markOption(q.options.indexOf(f), 'reveal');
       this.picker.record(f, correct, true);
+      this.save.answered++;
       if (correct) {
+        this.save.correct++;
         count++;
         combo++;
         const pts = 50 + Math.min(combo, 10) * 10;
