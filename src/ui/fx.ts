@@ -95,10 +95,14 @@ export class Fx {
     this.ps = this.ps.filter((p) => p.life < p.max && p.y < this.h + 40);
   }
 
+  private drawn = false;
+
   draw(): void {
     const { ctx, dpr } = this;
+    if (!this.ps.length && !this.drawn) return;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawn = this.ps.length > 0;
     if (!this.ps.length) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     for (const p of this.ps) {

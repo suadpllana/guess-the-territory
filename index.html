@@ -9,7 +9,7 @@
     <script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
     <style>
       html,body{margin:0;height:100%;background:#a6d4fa;overflow:hidden}
-      #boot{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#a6d4fa;transition:opacity .5s;font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif}
+      #boot{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#a6d4fa;transition:opacity .35s;font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif}
       #boot.gone{opacity:0;pointer-events:none}
       #boot .logo{display:flex;flex-direction:column;align-items:center;gap:8px;animation:bootpop .6s cubic-bezier(.2,1.5,.4,1) both}
       #boot svg{width:64px;height:64px;filter:drop-shadow(0 6px 8px rgba(20,40,90,.25));animation:bootpin 1.2s ease-in-out infinite}
@@ -22,6 +22,7 @@
   <body>
     <div id="app">
       <canvas id="map-base"></canvas>
+      <div id="vignette"></div>
       <div id="labels"></div>
       <canvas id="map-fx"></canvas>
       <div id="ui"></div>

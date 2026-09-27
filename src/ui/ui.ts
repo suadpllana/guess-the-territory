@@ -74,6 +74,7 @@ export class UI {
   private floats = el('div', 'floats');
   private overlay = el('div', 'overlay hide');
   private blocker = el('div', 'blocker hide');
+  private tapHint = el('div', 'tap-hint hide', ICON.hand);
   private pickResolve: ((i: number) => void) | null = null;
   private shownPoints = 0;
   private pointsAnim = 0;
@@ -97,7 +98,7 @@ export class UI {
     this.promptText.dir = 'auto';
     this.prompt.append(this.promptText);
     this.timer.append(this.timerFill);
-    this.panel.append(el('div', 'handle'), this.answers);
+    this.panel.append(el('div', 'handle'), this.answers, this.tapHint);
     this.hintBtn.innerHTML = ICON.bulb;
     this.hintBtn.append(this.hintBadge);
     this.fabs.append(this.locateBtn, this.hintBtn);
@@ -233,6 +234,10 @@ export class UI {
     this.hintBtn.classList.toggle('hide', !visible);
     this.hintBtn.classList.toggle('video', video);
     this.hintBadge.innerHTML = video ? ICON.video : String(count);
+  }
+
+  showTapHint(on: boolean): void {
+    this.tapHint.classList.toggle('hide', !on);
   }
 
   setLocate(visible: boolean): void {

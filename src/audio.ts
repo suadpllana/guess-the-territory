@@ -42,8 +42,12 @@ class Sound {
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       this.applyGains();
     }
-    if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => undefined);
+    if (this.ctx.state === 'suspended' && !this.muted) this.ctx.resume().catch(() => undefined);
     if (this.musicWanted) this.startMusic();
+  }
+
+  get running(): boolean {
+    return !!this.ctx && this.ctx.state === 'running';
   }
 
   setMuted(m: boolean): void {

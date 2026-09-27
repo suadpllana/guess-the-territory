@@ -62,22 +62,22 @@ export class Renderer {
     return out;
   }
 
-  /** Water, land and borders. */
-  drawBase(surf: Surface, view: View, vp: Rect, theme: Theme): void {
+  /** Water, land and borders. fast: lighter drawing while the camera moves. */
+  drawBase(surf: Surface, view: View, vp: Rect, theme: Theme, fast = false): void {
     const { ctx, w, h, dpr } = surf;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = theme.water;
     ctx.fillRect(0, 0, w, h);
 
     const s = scaleOf(view);
-    const lod = this.world.lodFor(s);
+    const lod = Math.max(0, this.world.lodFor(s) - (fast ? 1 : 0));
     const rect = this.visibleRect(surf, view, vp);
     const vis = this.visibleFeatures(rect);
     const px = K / s;
 
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    if (theme.halo) {
+    if (theme.halo && !fast) {
       ctx.strokeStyle = theme.halo;
       ctx.lineWidth = theme.haloWidth * px;
       for (const { f, k } of vis) {
@@ -109,8 +109,11 @@ export class Renderer {
         }
       }
     }
+  }
 
-    // soft edge vignette gives the flat map some depth
+  /** Soft edge vignette for still images (the live game uses a CSS layer). */
+  vignette(surf: Surface): void {
+    const { ctx, w, h, dpr } = surf;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.45, w / 2, h / 2, Math.hypot(w, h) * 0.62);
     g.addColorStop(0, 'rgba(0,0,0,0)');
@@ -409,13 +412,13 @@ function makeClouds(): HTMLCanvasElement[] {
 }
 
 /** Clouds that appear while the camera is high up during flights. */
-export function drawClouds(surf: Surface, view: View, altitude: number): void {
-  if (altitude <= 0.02) return;
+export function drawClouds(surf: Surface, view: View, altitude: number, count = 9): void {
+  if (altitude <= 0.02 || count <= 0) return;
   cloudSprites ||= makeClouds();
   const { ctx, w, h, dpr } = surf;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const span = Math.max(w, h) * 1.6;
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < count; i++) {
     const sprite = cloudSprites[i % cloudSprites.length];
     // parallax: clouds drift with the camera centre, faster than the ground
     const px = frac(i * 0.37 + view.x * 3.1) * span - span * 0.3;

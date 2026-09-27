@@ -64,6 +64,13 @@ body {
   z-index: 35;
 }
 
+#vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(10, 40, 90, 0.11) 100%);
+}
+
 #labels {
   position: absolute;
   inset: 0;
@@ -438,7 +445,9 @@ button {
 
 .answer .txt {
   flex: 1;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 
 .answer .key {
@@ -590,6 +599,40 @@ button {
   width: 70%;
 }
 
+.tap-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--u) * 3.4);
+  height: calc(var(--u) * 3.4);
+  margin: calc(var(--u) * -0.4) 0 0 calc(var(--u) * -1.7);
+  color: #fff;
+  filter: drop-shadow(0 3px 6px rgba(29, 39, 66, 0.45));
+  pointer-events: none;
+  animation: tapHint 1.2s ease-in-out infinite;
+  z-index: 2;
+}
+
+.tap-hint svg {
+  width: 100%;
+  height: 100%;
+  stroke: #1d2742;
+  stroke-width: 1.2px;
+}
+
+@keyframes tapHint {
+  0%,
+  100% {
+    transform: translate(-60%, 30%) scale(1);
+  }
+  45% {
+    transform: translate(-60%, 10%) scale(0.88);
+  }
+  55% {
+    transform: translate(-60%, 10%) scale(0.88);
+  }
+}
+
 /* ---------- floating action buttons ---------- */
 
 .fabs {
@@ -677,6 +720,28 @@ button {
 
 .map-label.lbl-bad span {
   color: #e0312a;
+}
+
+.map-label.lbl-near span {
+  margin-top: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  font-size: calc(var(--u) * 0.8);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #6f6a86;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 6px #fff;
+  animation: nearIn 0.5s ease-out 0.15s both;
+}
+
+@keyframes nearIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .map-label.lbl-hint span {

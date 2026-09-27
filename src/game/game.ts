@@ -146,7 +146,11 @@ export class Game {
 
   // ---------- lifecycle ----------
 
+  /** Called when the first round begins (stops the idle world drift). */
+  onStart?: () => void;
+
   async run(): Promise<void> {
+    this.onStart?.();
     this.save.sessions++;
     this.level = Math.max(1, this.save.level);
     this.ui.setPoints(this.save.points, false);
@@ -170,6 +174,7 @@ export class Game {
   firstInput(): void {
     if (this.started) return;
     this.started = true;
+    this.ui.showTapHint(false);
     sound.unlock();
     if (this.save.music) sound.startMusic();
     this.syncGameplay();
@@ -503,7 +508,17 @@ export class Game {
     void arrived.then(() => {
       seenAt = Math.min(seenAt, clock.now);
     });
+    // First question of a first visit: if nothing is tapped for a few seconds,
+    // a small hand points at the answers.
+    const hintTimer =
+      !this.started && this.save.answered === 0
+        ? window.setTimeout(() => {
+            if (!this.started && this.ui.picking) this.ui.showTapHint(true);
+          }, 4000)
+        : 0;
     const pick = await this.ui.waitPick();
+    window.clearTimeout(hintTimer);
+    this.ui.showTapHint(false);
     const elapsed = Math.max(0, clock.now - seenAt);
     let points: number | undefined;
     if (q.mode === 'reveal') {
@@ -529,8 +544,14 @@ export class Game {
     return this.settle(f, correct, true, false, q.options[pick]);
   }
 
+  /** Deepest zoom that still shows at least 140 km (finer detail is not bundled). */
+  private zCap(y: number): number {
+    const minSpan = 140 / kmPerUnit(y);
+    return Math.log2(Math.min(this.map.vp.w, this.map.vp.h) / minSpan);
+  }
+
   private revealStart(f: Feature, home: View): View {
-    const z = home.z + 2.3;
+    const z = Math.max(home.z + 0.8, Math.min(home.z + 2.3, this.zCap(f.label[1])));
     const s = 2 ** home.z;
     // start near the label point, nudged so a border is likely in view
     const jitter = (Math.min(this.map.vp.w, this.map.vp.h) / s) * 0.12;
@@ -744,6 +765,7 @@ export class Game {
     if (!keepLook) this.map.setLook('good');
     const name = countryName(f.code, f.name);
     if (label) this.map.showLabel(f, correct ? name : t('it_is', { c: name }), correct ? 'good' : 'bad');
+    if (label && !this.map.silhouette) this.labelNeighbours(f, chosen);
     if (!correct && chosen && chosen !== f && !this.map.silhouette && this.onScreen(chosen)) {
       // show where the wrongly chosen country really is
       this.map.setCandidates([chosen]);
@@ -755,10 +777,22 @@ export class Game {
     return correct;
   }
 
-  private onScreen(f: Feature): boolean {
+  /** Names of a few sizeable neighbours, as on a real map (passive learning). */
+  private labelNeighbours(f: Feature, skip?: Feature): void {
+    const near = f.neighbours
+      .map((c) => this.world.byCode.get(c))
+      .filter((n): n is Feature => !!n && n.quiz && n !== skip && n.area > f.area / 12 && this.onScreen(n, 0.08))
+      .sort((a, b) => b.area - a.area)
+      .slice(0, 4);
+    for (const n of near) this.map.showLabel(n, countryName(n.code, n.name), 'near');
+  }
+
+  private onScreen(f: Feature, margin = 0): boolean {
     const [x, y] = this.map.screenOf(f.label[0], f.label[1]);
     const r = this.map.vp;
-    return x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h;
+    const mx = r.w * margin;
+    const my = r.h * margin;
+    return x > r.x + mx && x < r.x + r.w - mx && y > r.y + my && y < r.y + r.h - my;
   }
 
   private async hold(ms: number, min: number): Promise<void> {
@@ -857,7 +891,7 @@ export class Game {
     const span = Math.max(this.map.vp.w, this.map.vp.h) / s;
     return {
       minZ: home.z - 1.6,
-      maxZ: home.z + 1.8,
+      maxZ: Math.max(home.z + 0.5, Math.min(home.z + 1.8, this.zCap(home.y))),
       box: [home.x - span * 1.2, home.y - span * 1.2, home.x + span * 1.2, home.y + span * 1.2],
     };
   }
@@ -879,6 +913,7 @@ export class Game {
     if (this.tileStyle === 'map') {
       const view = fitBox(f.frame, vp, 0.6, Math.max(350, f.ctx) / kmPerUnit(cy));
       renderer.drawBase(surf, view, vp, th);
+      renderer.vignette(surf);
       const [stroke, fill] = look === 'good' ? [th.good, th.goodFill] : look === 'bad' ? [th.bad, th.badFill] : [th.target, th.targetFill];
       renderer.highlight(surf, view, vp, { feature: f, fill, stroke, width: 2, dash: look === 'ask', dashOffset: 0 });
     } else {

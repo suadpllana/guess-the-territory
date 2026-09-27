@@ -62,6 +62,12 @@ export class MapView {
   private pinchDist = 0;
   private moved = false;
   private flying = false;
+  private lastView: View = { x: NaN, y: NaN, z: NaN };
+  private roughFrame = false;
+  private fxDrawn = true;
+  private fxFrame = 0;
+  /** 1 = full effects, 0 = weak device (no glow pulse, fewer clouds). */
+  quality = 1;
 
   constructor(
     public world: World,
@@ -225,7 +231,7 @@ export class MapView {
     this.candidateLook = new Map(fs.map((f) => [f, 'ask' as Look]));
   }
 
-  showLabel(f: Feature, text: string, kind: 'good' | 'bad' | 'hint' = 'good'): void {
+  showLabel(f: Feature, text: string, kind: 'good' | 'bad' | 'hint' | 'near' = 'good'): void {
     const el = document.createElement('div');
     el.className = `map-label lbl-${kind}`;
     const span = document.createElement('span');
@@ -287,13 +293,25 @@ export class MapView {
 
   draw(): void {
     const t = clock.now / 1000;
+    const v = this.view;
+    const moving = v.x !== this.lastView.x || v.y !== this.lastView.y || v.z !== this.lastView.z;
+    this.lastView = { ...v };
+    // Draw lighter while the camera moves; redraw fully once it settles.
+    if (!moving && this.roughFrame) this.baseDirty = true;
     if (this.baseDirty) {
       if (this.silhouette) this.renderer.drawPaper(this.base, this.theme, 0);
-      else this.renderer.drawBase(this.base, this.view, this.vp, this.theme);
+      else this.renderer.drawBase(this.base, this.view, this.vp, this.theme, moving);
+      this.roughFrame = moving && !this.silhouette;
       this.baseDirty = false;
       this.placeLabels();
     }
     const fx = this.fx;
+    // Skip the overlay when nothing is on it; weak devices animate it at 30 fps.
+    const active = !!this.target || this.candidates.length > 0 || this.altitude > 0.02;
+    if (!active && !this.fxDrawn) return;
+    this.fxFrame++;
+    if (active && this.quality < 1 && !moving && this.fxFrame % 2 === 1) return;
+    this.fxDrawn = active;
     fx.ctx.setTransform(1, 0, 0, 1, 0, 0);
     fx.ctx.clearRect(0, 0, this.fxCanvas.width, this.fxCanvas.height);
     const th = this.theme;
@@ -329,13 +347,13 @@ export class MapView {
           width: this.look === 'ask' ? 2.6 : 2.6 + 1.2 * (1 - k),
           dash: this.look === 'ask',
           dashOffset: t * 18,
-          glow: this.look === 'ask' ? pulse : 1 - k,
+          glow: this.quality < 1 ? 0 : this.look === 'ask' ? pulse : 1 - k,
         });
         this.drawFocusRing(f, t);
       }
       this.drawPinLayer(f);
     }
-    drawClouds(fx, this.view, this.altitude);
+    drawClouds(fx, this.view, this.altitude, this.quality < 1 ? 4 : 9);
   }
 
   private drawFocusRing(f: Feature, t: number): void {
