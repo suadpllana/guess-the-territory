@@ -900,9 +900,8 @@ export class Game {
   }
 
   private renderTile(c: HTMLCanvasElement, f: Feature, look: Look): void {
-    const r = c.getBoundingClientRect();
-    const w = Math.max(10, r.width);
-    const h = Math.max(10, r.height);
+    const w = Math.max(10, c.offsetWidth);
+    const h = Math.max(10, c.offsetHeight);
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     c.width = Math.round(w * dpr);
     c.height = Math.round(h * dpr);
@@ -927,9 +926,8 @@ export class Game {
   }
 
   private drawAtlas(c: HTMLCanvasElement): void {
-    const r = c.getBoundingClientRect();
-    const w = Math.max(10, r.width);
-    const h = Math.max(10, r.height);
+    const w = Math.max(10, c.offsetWidth);
+    const h = Math.max(10, c.offsetHeight);
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     c.width = Math.round(w * dpr);
     c.height = Math.round(h * dpr);

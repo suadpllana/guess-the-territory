@@ -125,17 +125,18 @@ export class UI {
   }
 
   mapRect(w: number, h: number): Rect {
+    // Layout offsets, not getBoundingClientRect: entry animations (sheet slide,
+    // prompt pop) must not change where the camera frames the country.
     const u = this.u;
-    const hudB = this.hud.getBoundingClientRect().bottom;
-    const pr = this.prompt.classList.contains('hide') ? null : this.prompt.getBoundingClientRect();
-    const top = Math.max(hudB, pr ? pr.bottom : 0) + u * 0.5;
+    const hudB = this.hud.offsetTop + this.hud.offsetHeight;
+    const pr = this.prompt.classList.contains('hide') ? 0 : this.prompt.offsetTop + this.prompt.offsetHeight;
+    const top = Math.max(hudB, pr) + u * 0.5;
     let left = u * 0.5;
     let right = w - u * 0.5;
     let bottom = h - u * 0.6;
     if (this.panelMode !== 'none') {
-      const p = this.panel.getBoundingClientRect();
-      if (this.landscape) right = p.left - u * 0.6;
-      else bottom = p.top - u * 0.4;
+      if (this.landscape) right = this.panel.offsetLeft - u * 0.6;
+      else bottom = this.panel.offsetTop - u * 0.4;
     }
     if (this.landscape) left = u * 0.6;
     return { x: left, y: top, w: Math.max(40, right - left), h: Math.max(40, bottom - top) };
