@@ -93,7 +93,14 @@ export class Picker {
   }
 
   private usable(f: Feature | undefined, mode: Mode): f is Feature {
-    return !!f && f.quiz && !this.recent.includes(f.code) && MODE_OK[mode](f);
+    return !!f && f.quiz && !this.isRecent(f.code) && MODE_OK[mode](f);
+  }
+
+  /** Novices see familiar countries again sooner; experts get more variety. */
+  private isRecent(code: string): boolean {
+    const span = Math.round(8 + Math.min(32, this.save.skill * 5));
+    const i = this.recent.lastIndexOf(code);
+    return i >= 0 && this.recent.length - i <= span;
   }
 
   private target(mode: Mode, cap: number, pool?: (f: Feature) => boolean): { f: Feature; easy: boolean } {
@@ -111,13 +118,14 @@ export class Picker {
       if (this.usable(f, mode) && (!pool || pool(f))) return { f, easy: false };
     }
     const s = this.save.skill;
-    const aim = Math.min(cap, s + gauss() * 0.7 - 0.15);
+    // Aim a little below the estimate so most questions feel fair.
+    const aim = Math.min(cap, s - 0.35 + gauss() * 0.6);
     let list = this.world.quiz.filter((f) => this.usable(f, mode) && f.difficulty <= Math.max(1.5, cap) && (!pool || pool(f)));
     if (!list.length) list = this.world.quiz.filter((f) => MODE_OK[mode](f) && (!pool || pool(f)));
     if (!list.length) list = this.world.quiz;
     const f = weighted(list, (x) => {
       const d = x.difficulty - aim;
-      return Math.exp(-(d * d) / 1.1) * (this.collected.has(x.code) ? 0.5 : 1.5);
+      return Math.exp(-(d * d) / 1.1) * (this.collected.has(x.code) ? 0.7 : 1.3);
     }) as Feature;
     return { f, easy: false };
   }
@@ -199,16 +207,18 @@ export class Picker {
   record(f: Feature, correct: boolean, fast: boolean): void {
     const s = this.save.skill;
     if (correct) {
-      const gain = f.difficulty >= s - 0.6 ? (fast ? 0.32 : 0.22) : 0.08;
+      // gain/loss ratio sets the success rate the game settles at:
+      // p = loss / (gain + loss) ~ 0.78
+      const gain = f.difficulty >= s - 0.6 ? (fast ? 0.24 : 0.16) : 0.06;
       this.save.skill = Math.min(MAX_DIFFICULTY, s + gain);
       this.save.missed = this.save.missed.filter((c) => c !== f.code);
     } else {
-      this.save.skill = Math.max(1, s - 0.45);
+      this.save.skill = Math.max(1, s - 0.62);
       this.revenge.push({ code: f.code, due: this.round + 3 + Math.floor(Math.random() * 3) });
       this.save.missed = [...new Set([...this.save.missed, f.code])].slice(-12);
     }
     this.recent.push(f.code);
-    if (this.recent.length > 40) this.recent.shift();
+    if (this.recent.length > 60) this.recent.shift();
   }
 
   markCollected(code: string): void {

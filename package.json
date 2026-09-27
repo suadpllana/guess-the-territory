@@ -20,7 +20,8 @@
     "thumbnail": "node tools/thumbnail/render.mjs",
     "test:ads": "node tools/test/ads.mjs",
     "qa:countries": "node tools/test/contact.mjs",
-    "perf": "node tools/test/perf.mjs"
+    "perf": "node tools/test/perf.mjs",
+    "sim": "node tools/test/sim.mjs"
   },
   "devDependencies": {
     "@fontsource/fredoka": "5.3.0",

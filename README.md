@@ -68,7 +68,7 @@ The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause m
 
 - **First 60 s:** the first frame is already moving (the world turns toward your home country). There is no title screen, and nothing can hurt you before your first input. The first question is your own country with obviously wrong options, answered with a big win moment: confetti, chime, "+150", "NEW".
 - **Minutes 1–5:** each of the first five levels (~40 s each) introduces one new way to play with a one-second pictogram banner, and a blitz bonus follows level 3. Cards stay ≤ 1 s early on, the next level starts automatically, and progress dots always show what's left. Difficulty is capped per level, so the first real skill test comes around minute 3.
-- **Tail:** endless mixed levels, boss levels every 5, blitz every 3, an atlas of 198 countries and five unlockable map styles. Adaptive difficulty targets roughly 80% success, and missed countries come back a few rounds later.
+- **Tail:** endless mixed levels, boss levels every 5, blitz every 3, an atlas of 198 countries and five unlockable map styles. Adaptive difficulty targets roughly 80% success (checked with `npm run sim`: about 70% for novices, 80% for average players and 93% for experts), and missed countries come back a few rounds later.
 
 ### Question order
 
@@ -87,6 +87,7 @@ npm run test:ads     # ads build: midroll timing, rewarded hint and continue
 npm run shots        # screenshots at Poki's reference sizes -> tools/.cache/shots
 npm run qa:countries # every quiz country as the game frames it -> tools/.cache/contact
 npm run perf         # frame times under CPU throttling (RATE=6 by default)
+npm run sim          # headless simulation of the adaptive difficulty (novice / average / expert players)
 npm run thumbnail    # re-render store/ assets with the game's own renderer (needs ffmpeg with libx264 in PATH, or FFMPEG=/path/to/ffmpeg)
 ```
 
