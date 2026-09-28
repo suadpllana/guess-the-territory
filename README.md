@@ -137,6 +137,7 @@ npm run data        # downloads Natural Earth into tools/.cache, writes src/data
 ## Credits and licences
 
 - Map data: [Natural Earth](https://www.naturalearthdata.com/) 1:10m admin-0 countries and point-of-view editions (public domain).
+- Flags: [country-flag-icons](https://gitlab.com/catamphetamine/country-flag-icons) (MIT), inlined as SVG.
 - Time zone table: [countries-and-timezones](https://github.com/manuelmhtr/countries-and-timezones) (MIT).
 - Logo fonts (used only to render `store/` images, not shipped in the game): Lilita One and Fredoka (SIL Open Font License).
 - Code, pin mascot, sounds and store images were made for this project with AI assistance (Claude Code). All art is drawn procedurally by the game's own renderer; nothing comes from third-party image or sound libraries.

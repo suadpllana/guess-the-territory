@@ -5,6 +5,7 @@ import { sound } from '../audio';
 import { ADS, BUILD } from '../config';
 import { clock } from '../core/clock';
 import { kmPerUnit, type Feature, type World } from '../geo/world';
+import { FLAGS } from '../data/flags';
 import { countryName, praise, t } from '../i18n';
 import { ease, fitBox, type View } from '../map/camera';
 import type { Look, MapView } from '../map/mapview';
@@ -477,7 +478,7 @@ export class Game {
     const f = q.target;
     const names = q.options.map((o) => countryName(o.code, o.name));
     this.ui.setPrompt(t('q_classic'));
-    this.ui.showOptions(names, !this.ui.touch);
+    this.ui.showOptions(names, !this.ui.touch, q.options.map((o) => FLAGS[o.code] ?? ''));
     this.refreshHint(true);
     this.relayout();
     const sil = q.mode === 'silhouette';
@@ -620,7 +621,7 @@ export class Game {
     for (const c of q.options) if (c !== f) this.map.showLabel(c, countryName(c.code, c.name), 'hint');
     const [x, y] = this.map.screenOf(picked.label[0], picked.label[1]);
     this.feedback(f, correct, [x, y], { fast: clock.now - t0 < 3000 });
-    this.map.showLabel(f, name, correct ? 'good' : 'bad');
+    this.map.showLabel(f, name, correct ? 'good' : 'bad', FLAGS[f.code]);
     await this.hold(correct ? 1100 : 1900, correct ? 400 : 800);
     this.map.setCandidates([]);
     return correct;
@@ -663,7 +664,8 @@ export class Game {
       this.ui.setPrompt(t('q_classic'));
       this.ui.showOptions(
         q.options.map((o) => countryName(o.code, o.name)),
-        !this.ui.touch
+        !this.ui.touch,
+        q.options.map((o) => FLAGS[o.code] ?? '')
       );
       this.refreshHint(false);
       this.relayout();
@@ -702,7 +704,7 @@ export class Game {
         sound.wrong();
         buzz(40);
         this.map.setLook('good');
-        this.map.showLabel(f, countryName(f.code, f.name), 'bad');
+        this.map.showLabel(f, countryName(f.code, f.name), 'bad', FLAGS[f.code]);
         await clock.wait(650);
       }
     }
@@ -767,7 +769,7 @@ export class Game {
   private async settle(f: Feature, correct: boolean, label: boolean, keepLook = false, chosen?: Feature): Promise<boolean> {
     if (!keepLook) this.map.setLook('good');
     const name = countryName(f.code, f.name);
-    if (label) this.map.showLabel(f, correct ? name : t('it_is', { c: name }), correct ? 'good' : 'bad');
+    if (label) this.map.showLabel(f, correct ? name : t('it_is', { c: name }), correct ? 'good' : 'bad', FLAGS[f.code]);
     if (label && !this.map.silhouette) this.labelNeighbours(f, chosen);
     if (!correct && chosen && chosen !== f && !this.map.silhouette && this.onScreen(chosen)) {
       // show where the wrongly chosen country really is

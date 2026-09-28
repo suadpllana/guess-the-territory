@@ -249,12 +249,18 @@ export class MapView {
     this.candidateLook = new Map(fs.map((f) => [f, 'ask' as Look]));
   }
 
-  showLabel(f: Feature, text: string, kind: 'good' | 'bad' | 'hint' | 'near' = 'good'): void {
+  showLabel(f: Feature, text: string, kind: 'good' | 'bad' | 'hint' | 'near' = 'good', flag = ''): void {
     const el = document.createElement('div');
     el.className = `map-label lbl-${kind}`;
     const span = document.createElement('span');
-    span.textContent = text;
     span.dir = 'auto';
+    if (flag) {
+      const fl = document.createElement('i');
+      fl.className = 'flag';
+      fl.innerHTML = flag;
+      span.appendChild(fl);
+    }
+    span.appendChild(document.createTextNode(text));
     el.appendChild(span);
     this.labelLayer.appendChild(el);
     this.labels.push({ f, el });

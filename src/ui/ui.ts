@@ -282,13 +282,14 @@ export class UI {
     this.panel.classList.toggle('tiles-mode', mode === 'tiles');
   }
 
-  showOptions(labels: string[], keys: boolean): void {
+  showOptions(labels: string[], keys: boolean, flags: string[] = []): void {
     this.answers.innerHTML = '';
     this.answers.className = `answers n${labels.length}`;
     this.buttons = labels.map((label, i) => {
       const b = el('button', 'answer enter');
       b.style.setProperty('--i', String(i));
       if (keys) b.append(el('span', 'key', String(i + 1)));
+      if (flags[i]) b.append(el('span', 'flag', flags[i]));
       const txt = el('span', 'txt');
       txt.textContent = label;
       txt.dir = 'auto';
