@@ -631,10 +631,10 @@ export class Game {
     const correct = picked === f;
     this.map.candidateLook.set(picked, correct ? 'good' : 'bad');
     if (!correct) this.map.candidateLook.set(f, 'good');
-    for (const c of q.options) if (c !== f) this.map.showLabel(c, countryName(c.code, c.name), 'hint', FLAGS[c.code]);
+    for (const c of q.options) if (c !== f) this.showLabel(c, countryName(c.code, c.name), 'hint', FLAGS[c.code]);
     const [x, y] = this.map.screenOf(picked.label[0], picked.label[1]);
     this.feedback(f, correct, [x, y], { fast: clock.now - t0 < 3000 });
-    this.map.showLabel(f, name, correct ? 'good' : 'bad', FLAGS[f.code]);
+    this.showLabel(f, name, correct ? 'good' : 'bad', FLAGS[f.code]);
     await this.hold(correct ? 1100 : 1900, correct ? 400 : 800);
     this.map.setCandidates([]);
     return correct;
@@ -717,7 +717,7 @@ export class Game {
         sound.wrong();
         buzz(40);
         this.map.setLook('good');
-        this.map.showLabel(f, countryName(f.code, f.name), 'bad', FLAGS[f.code]);
+        this.showLabel(f, countryName(f.code, f.name), 'bad', FLAGS[f.code]);
         await clock.wait(650);
       }
     }
@@ -782,17 +782,23 @@ export class Game {
   private async settle(f: Feature, correct: boolean, label: boolean, keepLook = false, chosen?: Feature): Promise<boolean> {
     if (!keepLook) this.map.setLook('good');
     const name = countryName(f.code, f.name);
-    if (label) this.map.showLabel(f, correct ? name : t('it_is', { c: name }), correct ? 'good' : 'bad', FLAGS[f.code]);
+    if (label) this.showLabel(f, correct ? name : t('it_is', { c: name }), correct ? 'good' : 'bad', FLAGS[f.code]);
     if (label && !this.map.silhouette) this.labelNeighbours(f, chosen);
     if (!correct && chosen && chosen !== f && !this.map.silhouette && this.onScreen(chosen)) {
       // show where the wrongly chosen country really is
       this.map.setCandidates([chosen]);
       this.map.candidateLook.set(chosen, 'bad');
-      this.map.showLabel(chosen, countryName(chosen.code, chosen.name), 'hint', FLAGS[chosen.code]);
+      this.showLabel(chosen, countryName(chosen.code, chosen.name), 'hint', FLAGS[chosen.code]);
     }
     await this.hold(correct ? 950 : 1800, correct ? 350 : 750);
     this.map.setCandidates([]);
     return correct;
+  }
+
+  /** Names a country on the map; the picker then holds it back for a few rounds. */
+  private showLabel(f: Feature, text: string, kind: 'good' | 'bad' | 'hint' | 'near', flag?: string): void {
+    this.map.showLabel(f, text, kind, flag);
+    this.picker.noteNamed(f.code);
   }
 
   /** Names of a few sizeable neighbours, as on a real map (passive learning). */
@@ -802,7 +808,7 @@ export class Game {
       .filter((n): n is Feature => !!n && n.quiz && n !== skip && n.area > f.area / 12 && this.onScreen(n, 0.08))
       .sort((a, b) => b.area - a.area)
       .slice(0, 4);
-    for (const n of near) this.map.showLabel(n, countryName(n.code, n.name), 'near', FLAGS[n.code]);
+    for (const n of near) this.showLabel(n, countryName(n.code, n.name), 'near', FLAGS[n.code]);
   }
 
   private onScreen(f: Feature, margin = 0): boolean {

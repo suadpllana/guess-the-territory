@@ -53,6 +53,23 @@ const fail = (m) => {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`${server.url}/?home=US&lang=en&speed=4`);
   await page.waitForFunction(() => window.__game, null, { timeout: 20000 });
+  // Log every question target and every country named on the map, by question number.
+  await page.evaluate(() => {
+    const g = window.__game;
+    const log = (window.__named = []);
+    const asked = (window.__asked = []);
+    const q = g.picker.question.bind(g.picker);
+    g.picker.question = (...a) => {
+      const r = q(...a);
+      asked.push(r.target.code);
+      return r;
+    };
+    const show = g.map.showLabel.bind(g.map);
+    g.map.showLabel = (f, ...rest) => {
+      log.push({ code: f.code, n: asked.length });
+      return show(f, ...rest);
+    };
+  });
   const t0 = Date.now();
   let answered = 0;
   const modes = new Set();
@@ -90,6 +107,13 @@ const fail = (m) => {
     }
     await page.waitForTimeout(150);
   }
+  const leaks = await page.evaluate(() =>
+    window.__asked
+      .map((code, i) => ({ code, k: i + 1 }))
+      .filter(({ code, k }) => window.__named.some((l) => l.code === code && l.n < k && l.n >= k - 3))
+      .map(({ code, k }) => `${code}@${k}`)
+  );
+  if (leaks.length) fail('asked a country just named on the map: ' + leaks.join(', '));
   const level = await page.evaluate(() => window.__game.level);
   console.log(`playthrough: reached level ${level} after ${answered} answers; modes seen: ${[...modes].join(', ')}`);
   if (level < 5) fail('did not reach level 5');

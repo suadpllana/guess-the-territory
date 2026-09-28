@@ -65,6 +65,8 @@ export class Picker {
   private opening: string[] = [];
   private round = 0;
   private revenge: { code: string; due: number }[] = [];
+  /** Countries just named on the map, and the last round they must not be asked in. */
+  private named = new Map<string, number>();
   private collected: Set<string>;
 
   constructor(
@@ -92,7 +94,21 @@ export class Picker {
   }
 
   private usable(f: Feature | undefined, mode: Mode): f is Feature {
-    return !!f && f.quiz && !this.isRecent(f.code) && MODE_OK[mode](f);
+    return !!f && f.quiz && !this.isRecent(f.code) && !this.isNamed(f.code) && MODE_OK[mode](f);
+  }
+
+  /**
+   * A country whose name was just shown on the map (a neighbour label, a
+   * wrong pick, a find-mode candidate) would give the answer away if asked
+   * next, so it waits a few rounds.
+   */
+  noteNamed(code: string): void {
+    this.named.set(code, this.round + 3);
+  }
+
+  private isNamed(code: string): boolean {
+    const until = this.named.get(code);
+    return until !== undefined && this.round <= until;
   }
 
   /** Novices see familiar countries again sooner; experts get more variety. */
@@ -105,12 +121,18 @@ export class Picker {
   private target(mode: Mode, cap: number, pool?: (f: Feature) => boolean): { f: Feature; easy: boolean } {
     this.round++;
     const first = this.round === 1;
-    while (this.opening.length) {
-      const f = this.world.byCode.get(this.opening[0]);
-      this.opening.shift();
+    let i = 0;
+    while (i < this.opening.length) {
+      const code = this.opening[i];
+      if (this.isNamed(code)) {
+        i++; // keep it for a later round
+        continue;
+      }
+      this.opening.splice(i, 1);
+      const f = this.world.byCode.get(code);
       if (this.usable(f, mode) && (!pool || pool(f))) return { f, easy: first || f.difficulty <= 1.5 };
     }
-    const dueIdx = this.revenge.findIndex((r) => r.due <= this.round);
+    const dueIdx = this.revenge.findIndex((r) => r.due <= this.round && !this.isNamed(r.code));
     if (dueIdx >= 0) {
       const f = this.world.byCode.get(this.revenge[dueIdx].code);
       this.revenge.splice(dueIdx, 1);
