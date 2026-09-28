@@ -26,7 +26,7 @@ npm run web         # Own website (Netlify etc.): no Poki SDK, no ads -> release
 2. **Orientation:** the game supports **both portrait and landscape** on mobile, so select both.
 3. **Thumbnail:** upload `store/thumbnail-1080.png`. It is square and has no text, as Poki recommends. `store/thumbnail-1080-correct.png` is an alternative, and 628/512 px versions are in `store/`.
 4. **Animated thumbnail** (needed for global release): `store/thumbnail.mp4`, 1080×1080 H.264, 4 s.
-5. **Logo** (if asked): `store/logo.png` or `store/logo-tagline.png` (transparent PNG).
+5. **Logo:** `store/logo-1024.png` (1024×1024 square icon). Wide transparent versions: `store/logo.png` and `store/logo-tagline.png`.
 6. Watch at least 10 playtest recordings, then request the **Player Fit Test** with no audience filter and all devices. Use the ads-off build (`npm run poki`) for fit tests.
 7. **Tag every uploaded zip** so a test result maps to code. The zip script prints the command, for example `git tag poki-1.0.0-372cce1 && git push --tags`.
 8. Before **global release**, switch to the ads build (`npm run poki:ads`). Nothing else changes: all ad call sites are already in place.

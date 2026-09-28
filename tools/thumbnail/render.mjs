@@ -1,5 +1,6 @@
 // Renders store assets with the game's own renderer (dev server must run):
-// store/thumbnail-*.png (no text, as Poki asks), store/thumbnail.mp4, store/logo*.png
+// store/thumbnail-*.png (no text, as Poki asks), store/thumbnail.mp4, store/logo*.png,
+// store/logo-1024.png (square icon)
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -47,6 +48,10 @@ for (const [name, q] of [['logo.png', ''], ['logo-tagline.png', '?tagline=' + en
   await page.waitForFunction(() => document.title === 'ready', null, { timeout: 30000 });
   await (await page.$('#c')).screenshot({ path: path.join(OUT, name), omitBackground: true });
 }
+// square game icon, 1024x1024 (opaque, all content inside the safe area)
+await page.goto(`${base}/tools/thumbnail/icon.html`);
+await page.waitForFunction(() => document.title === 'ready', null, { timeout: 30000 });
+await (await page.$('#c')).screenshot({ path: path.join(OUT, 'logo-1024.png') });
 await browser.close();
 await server.close();
 for (const f of fs.readdirSync(OUT)) console.log(f, (fs.statSync(path.join(OUT, f)).size / 1024).toFixed(0) + ' KB');

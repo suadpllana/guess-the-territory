@@ -1,0 +1,213 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>icon</title>
+<style>
+  @font-face { font-family: 'Lilita'; src: url('/node_modules/@fontsource/lilita-one/files/lilita-one-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Fredoka'; font-weight: 700; src: url('/node_modules/@fontsource/fredoka/files/fredoka-latin-700-normal.woff2') format('woff2'); }
+  html, body { margin: 0; background: #000; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Square game icon (1024x1024): the whole game in one picture. A map shows a
+// country, the red pin mascot drops on it with a "?", and you pick the answer.
+import { World } from '/src/geo/world.ts';
+import { Renderer, drawPinBody, pinPath } from '/src/map/renderer.ts';
+import { fitBox } from '/src/map/camera.ts';
+import { themeById } from '/src/map/themes.ts';
+import { FLAGS } from '/src/data/flags.ts';
+
+const S = 1024;
+const NAVY = '#1d2742';
+const RED = '#ff2238';
+const RED_DARK = '#c8001c';
+const canvas = document.getElementById('c');
+canvas.width = S; canvas.height = S;
+const ctx = canvas.getContext('2d');
+
+const merc = (lon, lat) => {
+  const la = (lat * Math.PI) / 180;
+  return [(lon + 180) / 360, 0.5 - Math.log(Math.tan(Math.PI / 4 + la / 2)) / (2 * Math.PI)];
+};
+const loadImg = (svg) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
+const rrect = (x, y, w, h, r) => { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); };
+
+// ---------- background: sunshine rays ----------
+function background(cx, cy) {
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, S * 0.78);
+  g.addColorStop(0, '#fff27a');
+  g.addColorStop(0.45, '#ffc93c');
+  g.addColorStop(1, '#ff8a1f');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, S, S);
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  const n = 18;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 - 0.08;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, S, a, a + Math.PI / n);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+  // a few confetti bits for party mood
+  const bits = [[90, 330, '#ff2238', 0.5], [940, 300, '#7c4dff', -0.4], [120, 720, '#22c55e', 0.9], [930, 690, '#ff2238', -0.2], [70, 520, '#7c4dff', 0.2], [960, 500, '#22c55e', 0.6]];
+  for (const [x, y, c, r] of bits) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(r); ctx.fillStyle = c;
+    rrect(-16, -8, 32, 16, 5); ctx.fill(); ctx.restore();
+  }
+}
+
+// ---------- the map disc ----------
+function mapDisc(cx, cy, R, world, it, anchor) {
+  const D = R * 2;
+  const off = document.createElement('canvas');
+  off.width = D; off.height = D;
+  const surf = { ctx: off.getContext('2d'), w: D, h: D, dpr: 1 };
+  const theme = { ...themeById('classic'), water: '#4f8ff7', land: '#fdf8ec', halo: 'rgba(255,255,255,0.55)', haloWidth: D * 0.012, border: '#b7a6d6', borderWidth: D * 0.003 };
+  const vp = { x: 0, y: 0, w: D, h: D };
+  const view = fitBox(it.frame, vp, 0.86, 0);
+  const s = 2 ** view.z;
+  // put the pin's spot a little above the disc centre, so the boot shows below it
+  view.x = anchor[0] + (D * 0.02) / s;
+  view.y = anchor[1] + (D * 0.1) / s;
+  const r = new Renderer(world);
+  r.drawBase(surf, view, vp, theme);
+  r.highlight(surf, view, vp, { feature: it, fill: 'rgba(255,34,56,0.22)', stroke: RED, width: D * 0.009, dash: true, dashOffset: 0, glow: 0.6 });
+  // disc: white ring + navy outline + drop shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(120,50,0,0.35)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16;
+  ctx.fillStyle = NAVY;
+  ctx.beginPath(); ctx.arc(cx, cy, R + 26, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(cx, cy, R + 16, 0, Math.PI * 2); ctx.fill();
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+  ctx.drawImage(off, cx - R, cy - R);
+  // soft inner shading, like a globe
+  const g = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.2, cx, cy, R);
+  g.addColorStop(0, 'rgba(255,255,255,0.18)');
+  g.addColorStop(0.7, 'rgba(255,255,255,0)');
+  g.addColorStop(1, 'rgba(20,40,110,0.28)');
+  ctx.fillStyle = g; ctx.fillRect(cx - R, cy - R, D, D);
+  ctx.restore();
+  // screen position of the anchor
+  return [cx - R + D / 2 + (anchor[0] - view.x) * s, cy - R + D / 2 + (anchor[1] - view.y) * s];
+}
+
+// ---------- the pin mascot, as a sticker ----------
+function pin(x, y, size) {
+  const theme = { ...themeById('classic'), pin: RED, pinDark: RED_DARK };
+  // ground shadow
+  ctx.fillStyle = 'rgba(40,20,60,0.3)';
+  ctx.beginPath(); ctx.ellipse(x, y + 4, size * 0.22, size * 0.07, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.save(); ctx.translate(x, y);
+  ctx.lineJoin = 'round';
+  pinPath(ctx, size);
+  ctx.lineWidth = size * 0.1; ctx.strokeStyle = '#fff'; ctx.stroke();
+  ctx.lineWidth = size * 0.045; ctx.strokeStyle = NAVY; ctx.stroke();
+  drawPinBody(ctx, size, theme, 'happy');
+  // bigger shine for a glossy toy look
+  const r = size * 0.36, cy = -size + r;
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.beginPath(); ctx.ellipse(-r * 0.5, cy - r * 0.6, r * 0.26, r * 0.13, -0.6, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function questionBubble(x, y, rad) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(0.12);
+  ctx.shadowColor = 'rgba(80,30,0,0.35)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 10;
+  ctx.fillStyle = NAVY;
+  ctx.beginPath(); ctx.arc(0, 0, rad + 8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-rad * 0.62, rad * 0.5); ctx.lineTo(-rad * 1.12, rad * 1.22); ctx.lineTo(-rad * 0.05, rad * 0.9); ctx.closePath(); ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-rad * 0.58, rad * 0.52); ctx.lineTo(-rad * 1.0, rad * 1.08); ctx.lineTo(-rad * 0.12, rad * 0.84); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = RED;
+  ctx.font = `${rad * 1.5}px Lilita`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('?', rad * 0.02, rad * 0.1);
+  ctx.restore();
+}
+
+// ---------- title ----------
+function title(cx, base, F) {
+  ctx.font = `${F}px Lilita`;
+  ctx.textBaseline = 'alphabetic';
+  ctx.lineJoin = 'round';
+  const parts = [{ t: 'Map ', c: ['#ffffff', '#ffffff', '#ffe7a3'] }, { t: 'Pop', c: ['#ffd0d5', RED, RED_DARK] }];
+  const widths = parts.map((p) => ctx.measureText(p.t).width);
+  let x = cx - (widths[0] + widths[1]) / 2;
+  const xs = parts.map((p, i) => { const v = x; x += widths[i]; return v; });
+  const ex = F * 0.075;
+  ctx.fillStyle = NAVY; ctx.strokeStyle = NAVY;
+  ctx.lineWidth = F * 0.16;
+  parts.forEach((p, i) => { ctx.strokeText(p.t, xs[i], base + ex); ctx.fillText(p.t, xs[i], base + ex); ctx.strokeText(p.t, xs[i], base); });
+  parts.forEach((p, i) => {
+    const g = ctx.createLinearGradient(0, base - F * 0.75, 0, base);
+    g.addColorStop(0, p.c[0]); g.addColorStop(0.3, p.c[1]); g.addColorStop(1, p.c[2]);
+    ctx.fillStyle = g;
+    ctx.fillText(p.t, xs[i], base);
+  });
+}
+
+// ---------- answer buttons ----------
+async function answer(x, y, w, h, code, label, good) {
+  const flag = await loadImg(FLAGS[code]);
+  const depth = h * 0.09;
+  ctx.fillStyle = NAVY;
+  rrect(x - 6, y - 6, w + 12, h + depth + 12, h * 0.34); ctx.fill();
+  ctx.fillStyle = good ? '#11893f' : '#c9cfe0';
+  rrect(x, y + depth, w, h, h * 0.3); ctx.fill();
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  if (good) { g.addColorStop(0, '#4ee07f'); g.addColorStop(1, '#1fb257'); } else { g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#eef1f8'); }
+  ctx.fillStyle = g;
+  rrect(x, y, w, h, h * 0.3); ctx.fill();
+  // flag
+  const fh = h * 0.46, fw = fh * 1.5, fx = x + h * 0.26, fy = y + (h - fh) / 2;
+  ctx.save(); rrect(fx, fy, fw, fh, fh * 0.14); ctx.clip(); ctx.drawImage(flag, fx, fy, fw, fh); ctx.restore();
+  ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(29,39,66,0.25)'; rrect(fx, fy, fw, fh, fh * 0.14); ctx.stroke();
+  // name
+  ctx.font = `700 ${h * 0.4}px Fredoka`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = good ? '#fff' : NAVY;
+  ctx.fillText(label, fx + fw + h * 0.2, y + h * 0.53);
+  if (good) {
+    // tick badge
+    const bx = x + w - h * 0.5, by = y + h / 2, br = h * 0.28;
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#1fb257'; ctx.lineWidth = br * 0.34; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(bx - br * 0.45, by + br * 0.02); ctx.lineTo(bx - br * 0.1, by + br * 0.38); ctx.lineTo(bx + br * 0.5, by - br * 0.35); ctx.stroke();
+  }
+}
+
+async function render() {
+  await document.fonts.load('100px Lilita');
+  await document.fonts.load('700 100px Fredoka');
+  const world = new World(null);
+  const it = world.byCode.get('IT');
+  const anchor = merc(11.9, 43.6); // Tuscany/Umbria: the boot stays visible below the pin
+  const cx = S / 2, cy = 592, R = 212;
+  background(cx, cy);
+  title(cx, 204, 172);
+  const [px, py] = mapDisc(cx, cy, R, world, it, anchor);
+  pin(px, py, 282);
+  questionBubble(px + 205, py - 228, 60);
+  const bw = 392, bh = 100, gap = 36, by = 854;
+  await answer(cx - gap / 2 - bw, by, bw, bh, 'IT', 'Italy', true);
+  await answer(cx + gap / 2, by, bw, bh, 'FR', 'France', false);
+  document.title = 'ready';
+}
+render();
+</script>
+</body>
+</html>
