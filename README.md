@@ -19,6 +19,7 @@ Ready-made zips for this version are already in [`release/`](release/): `map-pop
 npm install
 npm run poki        # Player Fit Test build: ads OFF  -> release/map-pop-1.0.0-<commit>.zip
 npm run poki:ads    # Release build: ads ON         -> release/map-pop-1.0.0-<commit>-ads.zip
+npm run web         # Own website (Netlify etc.): no Poki SDK, no ads -> release/map-pop-1.0.0-<commit>-web.zip
 ```
 
 1. **Upload** the zip from `release/` in Poki for Developers. `index.html` is already at the zip root, and all paths are relative.
@@ -31,6 +32,15 @@ npm run poki:ads    # Release build: ads ON         -> release/map-pop-1.0.0-<co
 8. Before **global release**, switch to the ads build (`npm run poki:ads`). Nothing else changes: all ad call sites are already in place.
 
 The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause menu.
+
+### Host it on your own site (Netlify)
+
+`npm run build:web` builds the same game **without the Poki SDK and without ads** into `dist/`, for any static host. `npm run web` also zips it as `release/map-pop-<version>-<commit>-web.zip`.
+
+- **From GitHub (updates on every push):** in Netlify choose *Add new site → Import an existing project → GitHub*, then pick this repository and the branch. [`netlify.toml`](netlify.toml) already sets the build command (`npm run build:web`) and the publish folder (`dist`), so you only click *Deploy*.
+- **By hand:** open [app.netlify.com/drop](https://app.netlify.com/drop) and drop the unzipped `-web` folder (or the `dist/` folder after `npm run build:web`) onto the page.
+
+Poki usually asks for web exclusivity for games it publishes. Keep the Netlify link for friends and testing, and check your Poki agreement before promoting it publicly.
 
 ### Suggested store text
 

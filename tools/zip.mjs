@@ -1,4 +1,4 @@
-// Packs dist/ into release/map-pop-<version>-<commit>[-ads].zip with index.html
+// Packs dist/ into release/map-pop-<version>-<commit>[-ads|-web].zip with index.html
 // at the root of the zip, as Poki requires. No dependencies (zlib + CRC32).
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -9,7 +9,7 @@ import zlib from 'node:zlib';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
 const OUT_DIR = path.join(ROOT, 'release');
-const flavour = process.argv[2] === 'ads' ? '-ads' : '';
+const flavour = process.argv[2] === 'ads' ? '-ads' : process.argv[2] === 'web' ? '-web' : '';
 
 if (!fs.existsSync(path.join(DIST, 'index.html'))) {
   console.error('dist/index.html missing: run the build first');
