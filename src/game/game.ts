@@ -631,7 +631,7 @@ export class Game {
     const correct = picked === f;
     this.map.candidateLook.set(picked, correct ? 'good' : 'bad');
     if (!correct) this.map.candidateLook.set(f, 'good');
-    for (const c of q.options) if (c !== f) this.map.showLabel(c, countryName(c.code, c.name), 'hint');
+    for (const c of q.options) if (c !== f) this.map.showLabel(c, countryName(c.code, c.name), 'hint', FLAGS[c.code]);
     const [x, y] = this.map.screenOf(picked.label[0], picked.label[1]);
     this.feedback(f, correct, [x, y], { fast: clock.now - t0 < 3000 });
     this.map.showLabel(f, name, correct ? 'good' : 'bad', FLAGS[f.code]);
@@ -788,7 +788,7 @@ export class Game {
       // show where the wrongly chosen country really is
       this.map.setCandidates([chosen]);
       this.map.candidateLook.set(chosen, 'bad');
-      this.map.showLabel(chosen, countryName(chosen.code, chosen.name), 'hint');
+      this.map.showLabel(chosen, countryName(chosen.code, chosen.name), 'hint', FLAGS[chosen.code]);
     }
     await this.hold(correct ? 950 : 1800, correct ? 350 : 750);
     this.map.setCandidates([]);
@@ -802,7 +802,7 @@ export class Game {
       .filter((n): n is Feature => !!n && n.quiz && n !== skip && n.area > f.area / 12 && this.onScreen(n, 0.08))
       .sort((a, b) => b.area - a.area)
       .slice(0, 4);
-    for (const n of near) this.map.showLabel(n, countryName(n.code, n.name), 'near');
+    for (const n of near) this.map.showLabel(n, countryName(n.code, n.name), 'near', FLAGS[n.code]);
   }
 
   private onScreen(f: Feature, margin = 0): boolean {

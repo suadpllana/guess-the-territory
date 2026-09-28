@@ -789,6 +789,13 @@ button {
   animation: nearIn 0.5s ease-out 0.15s both;
 }
 
+.map-label.lbl-near .flag {
+  width: 1.5em;
+  height: 1em;
+  vertical-align: -0.14em;
+  margin-inline-end: 0.35em;
+}
+
 @keyframes nearIn {
   from {
     opacity: 0;
