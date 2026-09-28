@@ -576,7 +576,7 @@ export class Game {
   private async roundShape(q: Question): Promise<boolean> {
     const f = q.target;
     const name = countryName(f.code, f.name);
-    this.ui.setPrompt(t('q_shape', { c: '{c}' }), name);
+    this.ui.setPrompt(t('q_shape', { c: '{c}' }), name, FLAGS[f.code]);
     this.map.setSilhouette(false);
     this.map.setTarget(null);
     this.map.limits = null;
@@ -610,7 +610,7 @@ export class Game {
   private async roundFind(q: Question): Promise<boolean> {
     const f = q.target;
     const name = countryName(f.code, f.name);
-    this.ui.setPrompt(t('q_find', { c: '{c}' }), name);
+    this.ui.setPrompt(t('q_find', { c: '{c}' }), name, FLAGS[f.code]);
     this.ui.setPanel('none');
     this.refreshHint(false);
     this.relayout();

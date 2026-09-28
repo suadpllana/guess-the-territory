@@ -255,7 +255,7 @@ export class UI {
 
   // ---------- prompt & timer ----------
 
-  setPrompt(text: string | null, name?: string): void {
+  setPrompt(text: string | null, name?: string, flag?: string): void {
     if (text === null) {
       this.prompt.classList.add('hide');
       return;
@@ -264,7 +264,13 @@ export class UI {
     if (name && text.includes('{c}')) {
       const [a, b] = text.split('{c}');
       const strong = el('b');
-      strong.textContent = name;
+      // the flag stays glued to the first word of the name when the line wraps
+      const cut = name.indexOf(' ');
+      const glue = el('span', 'glue');
+      if (flag) glue.append(el('span', 'pflag', flag));
+      glue.append(cut > 0 ? name.slice(0, cut) : name);
+      strong.append(glue);
+      if (cut > 0) strong.append(name.slice(cut));
       this.promptText.append(document.createTextNode(a), strong, document.createTextNode(b));
     } else this.promptText.textContent = text;
     this.prompt.classList.remove('hide', 'pop');

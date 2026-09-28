@@ -321,6 +321,27 @@ button {
   color: var(--red);
 }
 
+.prompt .glue {
+  white-space: nowrap;
+}
+
+.prompt .pflag {
+  display: inline-block;
+  width: 1.5em;
+  height: 1em;
+  margin-inline-end: 0.35em;
+  vertical-align: -0.14em;
+  border-radius: calc(var(--u) * 0.2);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(29, 39, 66, 0.14), 0 1px 3px rgba(29, 39, 66, 0.18);
+}
+
+.prompt .pflag svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .prompt.pop {
   animation: promptIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
