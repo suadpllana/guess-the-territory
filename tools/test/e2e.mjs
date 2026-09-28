@@ -158,6 +158,60 @@ const fail = (m) => {
   await page.close();
 }
 
+// 4) Out of hearts: the same level starts again, with other countries and its starting score.
+{
+  const page = await browser.newPage({ viewport: { width: 1031, height: 580 } });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(`${server.url}/?home=US&lang=en&speed=4`);
+  await page.waitForFunction(() => window.__game, null, { timeout: 20000 });
+  await page.evaluate(() => {
+    const g = window.__game;
+    window.__asked = [];
+    const q = g.picker.question.bind(g.picker);
+    g.picker.question = (...a) => {
+      const r = q(...a);
+      window.__asked.push({ code: r.target.code, level: g.level });
+      return r;
+    };
+  });
+  const answer = async (right) => {
+    const s = await page.evaluate(() => { const g = window.__game, q = g.currentQ; return { picking: g.ui.picking, tap: !!g.map.onTap, idx: q ? q.options.indexOf(q.target) : -1 }; });
+    if (s.tap) {
+      const p = await page.evaluate((right) => { const g = window.__game, q = g.currentQ; const f = right ? q.target : q.options.find((o) => o !== q.target); return g.map.screenOf(f.label[0], f.label[1]); }, right);
+      await page.mouse.click(p[0], p[1]);
+    } else if (s.picking) {
+      const b = await page.$$('.answers .answer:not(.gone), .answers .tile');
+      const i = right ? s.idx : (s.idx + 1) % b.length;
+      await b[i]?.click().catch(() => {});
+    }
+    await page.waitForTimeout(150);
+  };
+  let t0 = Date.now();
+  while ((await page.evaluate(() => window.__game.level)) < 2 && Date.now() - t0 < 60000) await answer(true);
+  await page.waitForFunction(() => window.__game.ui.picking, null, { timeout: 20000 });
+  const startPts = await page.evaluate(() => window.__game.save.points);
+  t0 = Date.now();
+  while (!(await page.evaluate(() => window.__game.ui.overlayOpen)) && Date.now() - t0 < 60000) await answer(false);
+  const card = await page.evaluate(() => document.querySelector('.overlay .hearts-card .btn:last-child span')?.textContent);
+  if (!/Level 2/.test(card || '')) fail('retry button does not name the current level: ' + card);
+  const failedSet = await page.evaluate(() => window.__asked.filter((a) => a.level === 2).map((a) => a.code));
+  const n = failedSet.length;
+  await page.click('.overlay .hearts-card .btn:last-child');
+  await page.waitForTimeout(300);
+  const after = await page.evaluate(() => ({ level: window.__game.level, saved: window.__game.save.level, pts: window.__game.save.points }));
+  if (after.level !== 2 || after.saved !== 2) fail(`retry moved to level ${after.level}/${after.saved}`);
+  if (after.pts !== startPts) fail(`retry score ${after.pts}, level started with ${startPts}`);
+  t0 = Date.now();
+  while ((await page.evaluate(() => window.__game.level)) === 2 && Date.now() - t0 < 60000) await answer(true);
+  const replay = await page.evaluate((n) => window.__asked.filter((a) => a.level === 2).slice(n).map((a) => a.code), n);
+  const repeats = replay.filter((c) => failedSet.includes(c));
+  if (repeats.length) fail('replayed level asked the same countries again: ' + repeats.join(', '));
+  console.log(`retry: level 2 again from ${startPts} pts; failed with ${failedSet.join(' ')}, replayed with ${replay.join(' ')}`);
+  if (errors.length) fail('page errors: ' + errors.join('; '));
+  await page.close();
+}
+
 await browser.close();
 await server.close();
 console.log(failed ? 'E2E FAILED' : 'E2E OK');

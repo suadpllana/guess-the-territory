@@ -118,6 +118,7 @@ export class Game {
   private roundIdx = 0;
   private lastRound = false;
   private cap = 2.5;
+  private levelStartPoints = 0;
 
   constructor(
     private world: World,
@@ -159,15 +160,14 @@ export class Game {
     for (;;) {
       const plan = planFor(this.level);
       const result = await this.playLevel(plan);
-      if (result === 'gameover') {
-        // Out of hearts: the run is over and the next one starts at level 1.
-        const reached = this.level;
-        this.level = 1;
-        this.save.level = 1;
-        this.save.points = 0;
-        this.ui.setPoints(0, false);
+      if (result === 'failed') {
+        // Out of hearts: play the same level again, with other countries and
+        // the score it started with.
+        this.save.points = this.levelStartPoints;
+        this.ui.setPoints(this.save.points, false);
+        this.picker.retryLevel();
         flushSave(this.save);
-        await this.naturalBreak(reached);
+        await this.naturalBreak(this.level);
         continue;
       }
       if (plan.bonus) await this.playBlitz();
@@ -385,7 +385,9 @@ export class Game {
 
   // ---------- levels ----------
 
-  private async playLevel(plan: Plan): Promise<'done' | 'gameover'> {
+  private async playLevel(plan: Plan): Promise<'done' | 'failed'> {
+    this.levelStartPoints = this.save.points;
+    this.picker.startLevel();
     this.hearts = 3;
     this.mistakes = 0;
     this.ui.setHearts(3, 3, plan.level > 1 ? 'gain' : null);
@@ -401,7 +403,7 @@ export class Game {
       await this.playRound(plan.modes[r % plan.modes.length], plan);
       if (this.hearts <= 0) {
         const choice = await this.outOfHearts(plan.level);
-        if (choice === 'gameover') return 'gameover';
+        if (choice === 'retry') return 'failed';
       }
     }
     await this.levelComplete(plan);
@@ -458,7 +460,7 @@ export class Game {
     this.syncGameplay();
   }
 
-  private async outOfHearts(level: number): Promise<'continue' | 'gameover'> {
+  private async outOfHearts(level: number): Promise<'continue' | 'retry'> {
     Poki.measure('level', pad(level), 'fail');
     const score = this.save.points;
     const record = score > this.save.bestPoints;
@@ -488,9 +490,9 @@ export class Game {
         }
         continue;
       }
-      Poki.measure('game', 'over', `level-${pad(level)}`);
+      Poki.measure('level', pad(level), 'retry');
       this.syncGameplay();
-      return 'gameover';
+      return 'retry';
     }
   }
 

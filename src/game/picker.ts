@@ -67,6 +67,7 @@ export class Picker {
   private revenge: { code: string; due: number }[] = [];
   /** Countries just named on the map, and the last round they must not be asked in. */
   private named = new Map<string, number>();
+  private levelAsked: string[] = [];
   private collected: Set<string>;
 
   constructor(
@@ -225,6 +226,21 @@ export class Picker {
     return this.question('classic', cap, pool);
   }
 
+  /**
+   * The player ran out of hearts and replays the level: it should bring other
+   * countries, so the failed level's countries (and missed ones due to come
+   * back) wait until after the replay.
+   */
+  retryLevel(): void {
+    for (const code of this.levelAsked) this.named.set(code, this.round + 12);
+    for (const r of this.revenge) r.due = Math.max(r.due, this.round + 12);
+  }
+
+  /** A level begins: remember what it asks, in case it has to be replayed. */
+  startLevel(): void {
+    this.levelAsked = [];
+  }
+
   record(f: Feature, correct: boolean, fast: boolean): void {
     const s = this.save.skill;
     if (correct) {
@@ -240,6 +256,7 @@ export class Picker {
     }
     this.recent.push(f.code);
     if (this.recent.length > 60) this.recent.shift();
+    this.levelAsked.push(f.code);
   }
 
   markCollected(code: string): void {

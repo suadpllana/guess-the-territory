@@ -596,7 +596,7 @@ export class UI {
         card.append(ad);
       }
       const retry = el('button', `btn ${o.canAd ? 'secondary' : 'primary'} big`, `${ICON.retry}<span></span>`);
-      (retry.querySelector('span') as HTMLElement).textContent = `${t('retry')} · ${t('level', { n: 1 })}`;
+      (retry.querySelector('span') as HTMLElement).textContent = `${t('retry')} · ${t('level', { n: o.level })}`;
       retry.addEventListener('click', () => resolve('retry'));
       card.append(retry);
       ov.append(card);
