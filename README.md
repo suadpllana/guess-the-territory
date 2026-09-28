@@ -13,7 +13,7 @@ A Google-Maps-style geography game for [Poki](https://developers.poki.com). The 
 
 ## Deploy to Poki (what you need to do)
 
-Ready-made zips for this version are already in [`release/`](release/): `map-pop-1.0.0-372cce1.zip` (ads off, for the Player Fit Test) and `map-pop-1.0.0-372cce1-ads.zip` (ads on, for release). To rebuild after changes:
+Ready-made zips for this version are already in [`release/`](release/): `map-pop-1.0.0-216a1a5.zip` (ads off, for the Player Fit Test) and `map-pop-1.0.0-216a1a5-ads.zip` (ads on, for release). To rebuild after changes:
 
 ```bash
 npm install
@@ -28,7 +28,7 @@ npm run web         # Own website (Netlify etc.): no Poki SDK, no ads -> release
 4. **Animated thumbnail** (needed for global release): `store/thumbnail.mp4`, 1080×1080 H.264, 4 s.
 5. **Logo:** `store/logo-1024.png` (1024×1024 square icon). Wide transparent versions: `store/logo.png` and `store/logo-tagline.png`.
 6. Watch at least 10 playtest recordings, then request the **Player Fit Test** with no audience filter and all devices. Use the ads-off build (`npm run poki`) for fit tests.
-7. **Tag every uploaded zip** so a test result maps to code. The zip script prints the command, for example `git tag poki-1.0.0-372cce1 && git push --tags`.
+7. **Tag every uploaded zip** so a test result maps to code. The zip script prints the command, for example `git tag poki-1.0.0-216a1a5 && git push --tags`.
 8. Before **global release**, switch to the ads build (`npm run poki:ads`). Nothing else changes: all ad call sites are already in place.
 
 The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause menu.
