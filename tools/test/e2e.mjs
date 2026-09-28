@@ -67,7 +67,7 @@ const fail = (m) => {
       await page.click('.overlay .btn').catch(() => {});
       continue;
     }
-    const right = Math.random() < 0.85;
+    const right = Math.random() < 0.95;
     if (s.mode === 'find' && s.tap) {
       const pos = await page.evaluate((right) => {
         const g = window.__game;

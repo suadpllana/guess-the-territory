@@ -1042,7 +1042,46 @@ button {
 }
 
 .landscape .pause-card .card-title,
-.landscape .pause-card .build {
+.landscape .pause-card .final-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 0.4);
+  font-size: calc(var(--u) * 2.4);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.final-score svg {
+  width: calc(var(--u) * 2.2);
+  height: calc(var(--u) * 2.2);
+  color: var(--gold);
+}
+
+.record-badge {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.35);
+  padding: calc(var(--u) * 0.35) calc(var(--u) * 0.9);
+  border-radius: 99px;
+  background: linear-gradient(180deg, #ffd24a, #ff9f1a);
+  color: #4a2a00;
+  font-weight: 900;
+  animation: gain 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.record-badge svg,
+.hearts-card .stats svg {
+  width: calc(var(--u) * 1.3);
+  height: calc(var(--u) * 1.3);
+}
+
+.hearts-card .stats span:first-child svg {
+  color: var(--gold);
+}
+
+.build {
   grid-column: 1 / -1;
 }
 
@@ -1262,6 +1301,45 @@ button {
   height: calc(var(--u) * 4.2);
   animation: heartbeat 1.1s ease-in-out infinite;
   filter: grayscale(0.3);
+}
+
+.final-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 0.4);
+  font-size: calc(var(--u) * 2.4);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.final-score svg {
+  width: calc(var(--u) * 2.2);
+  height: calc(var(--u) * 2.2);
+  color: var(--gold);
+}
+
+.record-badge {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.35);
+  padding: calc(var(--u) * 0.35) calc(var(--u) * 0.9);
+  border-radius: 99px;
+  background: linear-gradient(180deg, #ffd24a, #ff9f1a);
+  color: #4a2a00;
+  font-weight: 900;
+  animation: gain 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.record-badge svg,
+.hearts-card .stats svg {
+  width: calc(var(--u) * 1.3);
+  height: calc(var(--u) * 1.3);
+}
+
+.hearts-card .stats span:first-child svg {
+  color: var(--gold);
 }
 
 .build {

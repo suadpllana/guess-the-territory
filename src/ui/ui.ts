@@ -506,27 +506,40 @@ export class UI {
     requestAnimationFrame(() => d.drawAtlas(canvas));
   }
 
-  showOutOfHearts(canAd: boolean): Promise<'ad' | 'retry'> {
+  showGameOver(o: { level: number; score: number; best: number; bestLevel: number; record: boolean; canAd: boolean }): Promise<'ad' | 'retry'> {
     return new Promise((resolve) => {
-      const o = this.overlay;
-      o.innerHTML = '';
-      o.classList.remove('hide');
+      const ov = this.overlay;
+      ov.innerHTML = '';
+      ov.classList.remove('hide');
       const card = el('div', 'card hearts-card');
       card.append(el('div', 'big-heart', ICON.heart));
       const title = el('div', 'card-title');
       title.textContent = t('out_title');
-      card.append(title);
-      if (canAd) {
+      const lvl = el('div', 'stats-label');
+      lvl.textContent = t('level', { n: o.level });
+      const score = el('div', 'final-score', `${ICON.star}<b></b>`);
+      (score.querySelector('b') as HTMLElement).textContent = formatPoints(o.score);
+      card.append(title, lvl, score);
+      if (o.record && o.score > 0) {
+        const rec = el('div', 'record-badge', `${ICON.crown}<span></span>`);
+        (rec.querySelector('span') as HTMLElement).textContent = t('record');
+        card.append(rec);
+      } else {
+        const best = el('div', 'stats', `<span>${ICON.crown}<b></b></span>`);
+        (best.querySelector('b') as HTMLElement).textContent = formatPoints(o.best);
+        card.append(best);
+      }
+      if (o.canAd) {
         const ad = el('button', 'btn reward big', `${ICON.video}<span></span><em>+${ICON.heart}${ICON.heart}</em>`);
         (ad.querySelector('span') as HTMLElement).textContent = t('continue');
         ad.addEventListener('click', () => resolve('ad'));
         card.append(ad);
       }
-      const retry = el('button', `btn ${canAd ? 'secondary' : 'primary'} big`, `${ICON.retry}<span></span>`);
-      (retry.querySelector('span') as HTMLElement).textContent = t('retry');
+      const retry = el('button', `btn ${o.canAd ? 'secondary' : 'primary'} big`, `${ICON.retry}<span></span>`);
+      (retry.querySelector('span') as HTMLElement).textContent = `${t('retry')} · ${t('level', { n: 1 })}`;
       retry.addEventListener('click', () => resolve('retry'));
       card.append(retry);
-      o.append(card);
+      ov.append(card);
     });
   }
 }

@@ -109,7 +109,6 @@ export class Game {
   private hearts = 3;
   private streak = 0;
   private mistakes = 0;
-  private refillUsed = false;
   private hintUsed = false;
   private hintEligible = false;
   private currentQ: Question | null = null;
@@ -161,13 +160,20 @@ export class Game {
     for (;;) {
       const plan = planFor(this.level);
       const result = await this.playLevel(plan);
-      if (result === 'retry') {
-        await this.naturalBreak();
+      if (result === 'gameover') {
+        // Out of hearts: the run is over and the next one starts at level 1.
+        const reached = this.level;
+        this.level = 1;
+        this.save.level = 1;
+        this.save.points = 0;
+        this.ui.setPoints(0, false);
+        flushSave(this.save);
+        await this.naturalBreak(reached);
         continue;
       }
       if (plan.bonus) await this.playBlitz();
       this.level++;
-      await this.naturalBreak();
+      await this.naturalBreak(this.level);
     }
   }
 
@@ -352,7 +358,7 @@ export class Game {
 
   // ---------- levels ----------
 
-  private async playLevel(plan: Plan): Promise<'done' | 'retry'> {
+  private async playLevel(plan: Plan): Promise<'done' | 'gameover'> {
     this.hearts = 3;
     this.mistakes = 0;
     this.ui.setHearts(3, 3, plan.level > 1 ? 'gain' : null);
@@ -368,7 +374,7 @@ export class Game {
       await this.playRound(plan.modes[r % plan.modes.length], plan);
       if (this.hearts <= 0) {
         const choice = await this.outOfHearts(plan.level);
-        if (choice === 'retry') return 'retry';
+        if (choice === 'gameover') return 'gameover';
       }
     }
     await this.levelComplete(plan);
@@ -417,29 +423,30 @@ export class Game {
     });
   }
 
-  /** Midroll between levels, only once the player has had real fun. */
-  private async naturalBreak(): Promise<void> {
-    if (!ADS || this.level <= 3) return;
+  /** Midroll at a natural break, only once the player has had real fun (level 4+). */
+  private async naturalBreak(reached: number): Promise<void> {
+    if (!ADS || reached <= 3) return;
     Poki.gameplayStop();
     await Poki.commercialBreak();
     this.syncGameplay();
   }
 
-  private async outOfHearts(level: number): Promise<'continue' | 'retry'> {
-    if (!this.refillUsed) {
-      // The first "death" of a session is absorbed with a free refill.
-      this.refillUsed = true;
-      Poki.measure('level', pad(level), 'refill');
-      this.hearts = 3;
-      this.ui.setHearts(3, 3, 'gain');
-      sound.sparkle();
-      this.ui.toast(`${ICON.heart}${t('refill')}`, 'green');
-      return 'continue';
-    }
-    // A real death: counted as "fail" whether the player retries, continues or leaves.
+  private async outOfHearts(level: number): Promise<'continue' | 'gameover'> {
     Poki.measure('level', pad(level), 'fail');
+    const score = this.save.points;
+    const record = score > this.save.bestPoints;
+    this.save.bestPoints = Math.max(this.save.bestPoints, score);
+    this.save.bestLevel = Math.max(this.save.bestLevel, level);
+    flushSave(this.save);
     for (;;) {
-      const pending = this.ui.showOutOfHearts(Poki.canReward());
+      const pending = this.ui.showGameOver({
+        level,
+        score,
+        best: this.save.bestPoints,
+        bestLevel: this.save.bestLevel,
+        record,
+        canAd: Poki.canReward(),
+      });
       this.syncGameplay();
       const choice = await pending;
       this.ui.hideOverlay();
@@ -454,8 +461,9 @@ export class Game {
         }
         continue;
       }
+      Poki.measure('game', 'over', `level-${pad(level)}`);
       this.syncGameplay();
-      return 'retry';
+      return 'gameover';
     }
   }
 

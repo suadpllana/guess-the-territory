@@ -6,7 +6,9 @@ const KEY = 'mappop.v1'; // keep stable between versions or players lose progres
 export interface SaveData {
   level: number; // next level to play
   skill: number; // adaptive difficulty estimate
-  points: number;
+  points: number; // score of the current run (reset on game over)
+  bestPoints: number;
+  bestLevel: number;
   bestStreak: number;
   collected: string[]; // country codes answered correctly at least once
   missed: string[]; // recently missed, asked again later
@@ -25,6 +27,8 @@ export const DEFAULT_SAVE: SaveData = {
   level: 1,
   skill: 1.4,
   points: 0,
+  bestPoints: 0,
+  bestLevel: 0,
   bestStreak: 0,
   collected: [],
   missed: [],

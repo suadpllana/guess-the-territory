@@ -5,7 +5,7 @@ A Google-Maps-style geography game for [Poki](https://developers.poki.com). The 
 ![Map Pop](store/logo-tagline.png)
 
 - **One rule, six ways to play:** classic, zoom reveal (answer fast for more points), pick the shape, find it on the map, silhouette, and a 20-second blitz bonus. After that it's an endless ladder of mixed and boss levels.
-- **Built for playtime:** you're in the game from the first frame, with your home country as a guaranteed first win within seconds. A new mode arrives every level (~40 s). The first "death" is absorbed with a free refill, and there are streak multipliers, an atlas of countries to collect, and map styles to unlock.
+- **Built for playtime:** you're in the game from the first frame, with your home country as a guaranteed first win within seconds. A new mode arrives every level (~40 s). You get 3 hearts per level; losing all 3 is game over and the next run starts again at level 1 (a rewarded ad can continue the run in the ads build). There are run scores with a saved best, streak multipliers, an atlas of countries to collect, and map styles to unlock.
 - **Worldwide:** country names appear in the player's own language through the browser (`Intl.DisplayNames`), and the UI is in 24 languages. Borders follow the player's own country's view where it is disputed (India, Pakistan, China, Morocco, Argentina, Turkey and others).
 - **Poki-ready:** `index.html` + one JS + one CSS, about **250 KB zipped**. There are no external requests except the Poki SDK, and every item on the SDK checklist is covered (see below).
 
@@ -48,11 +48,11 @@ The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause m
 | `init` → `gameLoadingStart` → `gameLoadingFinished` | `src/poki.ts`; `init` has a 6 s timeout |
 | `gameplayStart` on first input, never on load | Fired on the first pointer/key input, then kept in sync with pause, tab hidden, ads and overlays; guarded against double calls |
 | `gameplayStop` before ads, on pause, menus, hidden tab | `Game.syncGameplay()` |
-| Midrolls only at natural breaks, never before first fun | From level 4 on: between levels and on "Try again"; every ad has a timeout |
+| Midrolls only at natural breaks, never before first fun | Between levels from level 4 on, and on game over once the run reached level 4; every ad has a timeout |
 | Rewarded: video icon, not green, free option, no reward if blocked | 🎬 icon, orange button; "Try again" is always shown; hidden when the SDK is blocked or failed |
 | Mute + block input during ads | `adStarted()` mutes the WebAudio master and shows an input blocker |
 | Playable with SDK blocked | Every call no-ops; tested with the SDK unreachable |
-| Game Events | `level NN start/complete/fail/refill` (fail = died, so Poki's "left" means quit without dying), `game input first`, `mode <id> first`, `hint token/rewarded used`, `reward continue granted`, `streak N reached`, `atlas N reached`, `unlock theme <id>`, `bonus blitz …`, `menu pause open` (no `/` or `^`, values ≤ 60 chars) |
+| Game Events | `level NN start/complete/fail` (fail = died, so Poki's "left" means quit without dying), `game over level-NN`, `game input first`, `mode <id> first`, `hint token/rewarded used`, `reward continue granted`, `streak N reached`, `atlas N reached`, `unlock theme <id>`, `bonus blitz …`, `menu pause open` (no `/` or `^`, values ≤ 60 chars) |
 | `captureError` | Global `error` / `unhandledrejection` handlers |
 | Full screen, every aspect ratio | Canvas covers the screen; bottom sheet in portrait, side card in landscape; checked at 640×360, 836×470, 1031×580, 1280×720, 390×844, 844×390 |
 | Poki pill (mobile, top-left) | HUD and prompt keep a 58 px gap on touch devices |
