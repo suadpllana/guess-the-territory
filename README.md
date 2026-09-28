@@ -7,13 +7,13 @@ A Google-Maps-style geography game for [Poki](https://developers.poki.com). The 
 - **One rule, six ways to play:** classic, zoom reveal (answer fast for more points), pick the shape, find it on the map, silhouette, and a 20-second blitz bonus. After that it's an endless ladder of mixed and boss levels.
 - **Built for playtime:** you're in the game from the first frame, with your home country as a guaranteed first win within seconds. A new mode arrives every level (~40 s). The first "death" is absorbed with a free refill, and there are streak multipliers, an atlas of countries to collect, and map styles to unlock.
 - **Worldwide:** country names appear in the player's own language through the browser (`Intl.DisplayNames`), and the UI is in 24 languages. Borders follow the player's own country's view where it is disputed (India, Pakistan, China, Morocco, Argentina, Turkey and others).
-- **Poki-ready:** `index.html` + one JS + one CSS, about **206 KB zipped**. There are no external requests except the Poki SDK, and every item on the SDK checklist is covered (see below).
+- **Poki-ready:** `index.html` + one JS + one CSS, about **250 KB zipped**. There are no external requests except the Poki SDK, and every item on the SDK checklist is covered (see below).
 
 ---
 
 ## Deploy to Poki (what you need to do)
 
-Ready-made zips for this version are already in [`release/`](release/): `map-pop-1.0.0-5641561.zip` (ads off, for the Player Fit Test) and `map-pop-1.0.0-5641561-ads.zip` (ads on, for release). To rebuild after changes:
+Ready-made zips for this version are already in [`release/`](release/): `map-pop-1.0.0-5a3caa3.zip` (ads off, for the Player Fit Test) and `map-pop-1.0.0-5a3caa3-ads.zip` (ads on, for release). To rebuild after changes:
 
 ```bash
 npm install
@@ -27,7 +27,7 @@ npm run poki:ads    # Release build: ads ON         -> release/map-pop-1.0.0-<co
 4. **Animated thumbnail** (needed for global release): `store/thumbnail.mp4`, 1080×1080 H.264, 4 s.
 5. **Logo** (if asked): `store/logo.png` or `store/logo-tagline.png` (transparent PNG).
 6. Watch at least 10 playtest recordings, then request the **Player Fit Test** with no audience filter and all devices. Use the ads-off build (`npm run poki`) for fit tests.
-7. **Tag every uploaded zip** so a test result maps to code. The zip script prints the command, for example `git tag poki-1.0.0-5641561 && git push --tags`.
+7. **Tag every uploaded zip** so a test result maps to code. The zip script prints the command, for example `git tag poki-1.0.0-5a3caa3 && git push --tags`.
 8. Before **global release**, switch to the ads build (`npm run poki:ads`). Nothing else changes: all ad call sites are already in place.
 
 The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause menu.
@@ -44,7 +44,7 @@ The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause m
 |---|---|
 | `index.html` at zip root, relative paths | Vite `base: './'`; `tools/zip.mjs` builds the zip and refuses sourcemaps/docs |
 | No external requests except the SDK | Map data, audio (synthesised) and icons (inline SVG) are bundled; the zip script checks `index.html` |
-| Small download | ~206 KB zipped in total (map data ~170 KB) |
+| Small download | ~250 KB zipped in total (map data ~170 KB, flags ~32 KB) |
 | `init` → `gameLoadingStart` → `gameLoadingFinished` | `src/poki.ts`; `init` has a 6 s timeout |
 | `gameplayStart` on first input, never on load | Fired on the first pointer/key input, then kept in sync with pause, tab hidden, ads and overlays; guarded against double calls |
 | `gameplayStop` before ads, on pause, menus, hidden tab | `Game.syncGameplay()` |
