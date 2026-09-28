@@ -94,6 +94,42 @@ const fail = (m) => {
   console.log(`playthrough: reached level ${level} after ${answered} answers; modes seen: ${[...modes].join(', ')}`);
   if (level < 5) fail('did not reach level 5');
   for (const m of ['classic', 'shape', 'blitz', 'find', 'silhouette']) if (!modes.has(m)) fail('mode never played: ' + m);
+
+  // 3) Restart from the pause menu: Cancel keeps the run; confirming wipes it.
+  await page.waitForFunction(() => window.__game.ui.picking || window.__game.map.onTap, null, { timeout: 20000 });
+  const before = await page.evaluate(() => ({ pts: window.__game.save.points, atlas: window.__game.save.collected.length }));
+  if (!before.pts || !before.atlas) fail('no progress to reset before restart test');
+  await page.keyboard.press('Escape');
+  await page.click('.overlay .restart');
+  if (!(await page.$('.overlay .confirm-card'))) fail('restart asked no confirmation');
+  await page.click('.overlay .confirm-card .btn.secondary');
+  if (!(await page.$('.overlay .pause-card'))) fail('cancel did not return to the pause card');
+  if ((await page.evaluate(() => window.__game.level)) < 5) fail('cancel changed the level');
+  await page.click('.overlay .restart');
+  await page.click('.overlay .btn.danger'); // too soon: a double tap must not confirm
+  if (!(await page.$('.overlay .confirm-card'))) fail('restart confirmed by an instant double tap');
+  await page.waitForTimeout(500);
+  await page.click('.overlay .btn.danger');
+  await page.waitForTimeout(200);
+  const after = await page.evaluate(() => {
+    const g = window.__game;
+    const s = g.save;
+    return { overlay: g.ui.overlayOpen, paused: g.paused, level: g.level, saved: s.level, pts: s.points, atlas: s.collected.length, answered: s.answered, best: s.bestPoints, sound: s.sound, hud: document.querySelector('.points b')?.textContent };
+  });
+  if (after.overlay || after.paused) fail('pause card still open after restart');
+  if (after.level !== 1 || after.saved !== 1) fail(`restart left level ${after.level}/${after.saved}`);
+  if (after.pts || after.atlas || after.answered || after.best) fail('restart kept stats: ' + JSON.stringify(after));
+  if (after.hud !== '0') fail('HUD score not reset: ' + after.hud);
+  if (!after.sound) fail('restart changed the sound setting');
+  // The fresh run opens with the home country again and keeps playing.
+  await page.waitForFunction(() => window.__game.ui.picking, null, { timeout: 20000 });
+  const q = await page.evaluate(() => ({ code: window.__game.currentQ.target.code, idx: window.__game.currentQ.options.indexOf(window.__game.currentQ.target) }));
+  if (q.code !== 'US') fail('fresh run did not open with the home country: ' + q.code);
+  await (await page.$$('.answers .answer'))[q.idx].click();
+  await page.waitForTimeout(1200);
+  const played = await page.evaluate(() => ({ answered: window.__game.save.answered, pts: window.__game.save.points, level: window.__game.level }));
+  if (played.answered !== 1 || !played.pts || played.level !== 1) fail('run after restart is broken: ' + JSON.stringify(played));
+  console.log(`restart: level ${after.level}, score ${after.pts}, atlas ${after.atlas}; next question ${q.code}, then ${played.pts} pts`);
   if (errors.length) fail('page errors: ' + errors.join('; '));
   await page.close();
 }

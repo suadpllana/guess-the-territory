@@ -11,7 +11,7 @@ import { ease, fitBox, type View } from '../map/camera';
 import type { Look, MapView } from '../map/mapview';
 import { THEMES, themeById } from '../map/themes';
 import { Poki } from '../poki';
-import { flushSave, writeSave, type SaveData } from '../storage';
+import { flushSave, freshSave, writeSave, type SaveData } from '../storage';
 import type { Fx } from '../ui/fx';
 import { ICON } from '../ui/icons';
 import type { UI } from '../ui/ui';
@@ -125,7 +125,7 @@ export class Game {
     private ui: UI,
     private fx: Fx,
     private save: SaveData,
-    home: string | null
+    private home: string | null
   ) {
     this.collected = new Set(save.collected.filter((c) => world.byCode.has(c)));
     haptics = save.sound;
@@ -152,6 +152,10 @@ export class Game {
     this.ui.setHearts(3);
     writeSave(this.save);
     if (this.save.sessions > 1 && this.save.answered > 0) this.ui.toast(`${ICON.globe}${t('welcome')}`);
+    await this.loop();
+  }
+
+  private async loop(): Promise<void> {
     for (;;) {
       const plan = planFor(this.level);
       const result = await this.playLevel(plan);
@@ -258,9 +262,45 @@ export class Game {
           this.applyTheme(id);
           Poki.measure('menu', 'theme', id);
         },
+        restart: () => this.restart(),
       }
     );
     this.syncGameplay();
+  }
+
+  /** Wipes progress (sound and music settings stay) and starts over at level 1, without reloading. */
+  private restart(): void {
+    Poki.measure('game', 'restart', `level-${pad(this.level)}`);
+    const keep = { sound: this.save.sound, music: this.save.music, sessions: this.save.sessions };
+    // Mutate in place: the picker and main.ts hold this same object.
+    Object.assign(this.save, freshSave(), keep);
+    flushSave(this.save);
+    // Abandon the run in progress: its pending waits, flights and taps never resume.
+    clock.cancelAll();
+    this.skip = null;
+    this.map.onTap = undefined;
+    this.map.jump({ ...this.map.view });
+    this.map.clearLabels();
+    this.map.setCandidates([]);
+    this.map.hidePin();
+    this.map.setSilhouette(false);
+    this.ui.resetRound();
+    this.applyTheme(this.save.theme);
+    this.collected = new Set();
+    this.picker = new Picker(this.world, this.save, this.home);
+    this.level = 1;
+    this.streak = 0;
+    this.blitzEnd = 0;
+    this.currentQ = null;
+    this.recordShown = false;
+    this.hintUsed = false;
+    this.hintEligible = false;
+    this.ui.setPoints(0, false);
+    this.ui.hideOverlay();
+    this.paused = false;
+    sound.tap();
+    this.syncGameplay();
+    void this.loop();
   }
 
   resume(): void {

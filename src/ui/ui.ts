@@ -39,6 +39,14 @@ export interface PauseData {
   drawAtlas: (canvas: HTMLCanvasElement) => void;
 }
 
+export interface PauseHandlers {
+  resume: () => void;
+  sound: () => boolean;
+  music: () => boolean;
+  theme: (id: string) => void;
+  restart: () => void;
+}
+
 export class UI {
   readonly root: HTMLElement;
   shakeTarget: HTMLElement;
@@ -442,7 +450,7 @@ export class UI {
     return !this.overlay.classList.contains('hide');
   }
 
-  showPause(d: PauseData, h: { resume: () => void; sound: () => boolean; music: () => boolean; theme: (id: string) => void }): void {
+  showPause(d: PauseData, h: PauseHandlers): void {
     const o = this.overlay;
     o.innerHTML = '';
     o.classList.remove('hide');
@@ -499,11 +507,57 @@ export class UI {
     const resume = el('button', 'btn primary big', `${ICON.play}<span></span>`);
     (resume.querySelector('span') as HTMLElement).textContent = t('resume');
     resume.addEventListener('click', h.resume);
+    const restart = el('button', 'link-btn restart', `${ICON.retry}<span></span>`);
+    (restart.querySelector('span') as HTMLElement).textContent = t('restart');
+    restart.addEventListener('click', () => this.confirmRestart(d, h));
     const build = el('div', 'build');
     build.textContent = `v${d.build}`;
-    card.append(title, atlas, stats, statsLabel, toggles, themeLabel, themes, resume, build);
+    card.append(title, atlas, stats, statsLabel, toggles, themeLabel, themes, resume, restart, build);
     o.append(card);
     requestAnimationFrame(() => d.drawAtlas(canvas));
+  }
+
+  /** "Are you sure?" step before wiping progress; Cancel goes back to the pause card. */
+  private confirmRestart(d: PauseData, h: PauseHandlers): void {
+    const o = this.overlay;
+    o.innerHTML = '';
+    const card = el('div', 'card confirm-card');
+    card.append(el('div', 'confirm-icon', ICON.retry));
+    const title = el('div', 'card-title');
+    title.textContent = t('restart_q');
+    const text = el('p', 'confirm-text');
+    text.textContent = t('restart_txt');
+    const yes = el('button', 'btn danger big', `${ICON.retry}<span></span>`);
+    (yes.querySelector('span') as HTMLElement).textContent = t('restart_yes');
+    // Ignore taps for a moment so a double tap on "Restart game" can't confirm it.
+    const armedAt = performance.now() + 450;
+    yes.addEventListener('click', () => {
+      if (performance.now() >= armedAt) h.restart();
+    });
+    const cancel = el('button', 'btn secondary big');
+    cancel.textContent = t('cancel');
+    cancel.addEventListener('click', () => this.showPause(d, h));
+    const actions = el('div', 'confirm-actions');
+    actions.append(yes, cancel);
+    card.append(title, text, actions);
+    o.append(card);
+  }
+
+  /** Clears whatever an abandoned round left on screen (used by restart). */
+  resetRound(): void {
+    this.pickResolve = null;
+    this.buttons = [];
+    this.answers.innerHTML = '';
+    this.setPanel('none');
+    this.setPrompt(null);
+    this.setTimer(null);
+    this.setStreak(0, 1);
+    this.setLocate(false);
+    this.setHint(0, false, false);
+    this.banner.className = 'banner';
+    this.banner.innerHTML = '';
+    this.toasts.innerHTML = '';
+    this.floats.innerHTML = '';
   }
 
   showGameOver(o: { level: number; score: number; best: number; bestLevel: number; record: boolean; canAd: boolean }): Promise<'ad' | 'retry'> {

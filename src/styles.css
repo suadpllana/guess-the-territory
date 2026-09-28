@@ -1086,7 +1086,13 @@ button {
 }
 
 .landscape .pause-card .atlas {
-  grid-row: 2 / span 5;
+  grid-row: 2 / span 4;
+}
+
+/* under the atlas, level with Resume, so it adds no row */
+.landscape .pause-card .restart {
+  grid-column: 1;
+  grid-row: 6;
 }
 
 .card-title {
@@ -1269,6 +1275,89 @@ button {
   background: #eef1f8;
   color: var(--ink);
   box-shadow: 0 calc(var(--u) * 0.25) 0 #d3d9e8;
+}
+
+.btn.danger {
+  background: linear-gradient(180deg, #ff6b78, #eb3b4c);
+  box-shadow: 0 calc(var(--u) * 0.25) 0 #b8202f;
+}
+
+.link-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 0.35);
+  align-self: center;
+  justify-self: center;
+  padding: calc(var(--u) * 0.35) calc(var(--u) * 0.8);
+  border-radius: 99px;
+  font-weight: 800;
+  font-size: calc(var(--u) * 0.85);
+  color: var(--muted);
+}
+
+.link-btn svg {
+  width: calc(var(--u) * 1);
+  height: calc(var(--u) * 1);
+}
+
+.link-btn:active {
+  background: #eef1f8;
+}
+
+.confirm-card {
+  width: min(calc(var(--u) * 22), 94vw);
+  text-align: center;
+}
+
+.confirm-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 4);
+  border-radius: 50%;
+  background: #ffe8ea;
+  color: #eb3b4c;
+}
+
+.confirm-icon svg {
+  width: calc(var(--u) * 2.2);
+  height: calc(var(--u) * 2.2);
+}
+
+.confirm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.7);
+}
+
+.landscape .confirm-card {
+  width: min(calc(var(--u) * 30), 94vw);
+}
+
+.landscape .confirm-actions {
+  flex-direction: row;
+}
+
+.landscape .confirm-icon {
+  width: calc(var(--u) * 3);
+  height: calc(var(--u) * 3);
+}
+
+.landscape .confirm-icon svg {
+  width: calc(var(--u) * 1.7);
+  height: calc(var(--u) * 1.7);
+}
+
+.confirm-text {
+  margin: 0 0 calc(var(--u) * 0.4);
+  font-size: calc(var(--u) * 0.95);
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--muted);
+  text-wrap: balance;
 }
 
 .btn:active {

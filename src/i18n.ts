@@ -5,13 +5,15 @@ type Key =
   | 'q_classic' | 'q_shape' | 'q_find' | 'm_classic' | 'm_shape' | 'm_find' | 'm_silhouette'
   | 'm_blitz' | 'm_mixed' | 'm_boss' | 'level' | 'level_done' | 'new' | 'it_is' | 'out_title' | 'retry'
   | 'continue' | 'refill' | 'paused' | 'resume' | 'sound' | 'music' | 'atlas' | 'best' | 'record' | 'time_up'
-  | 'unlocked' | 'style' | 'correct_n' | 'praise' | 'welcome' | 'tap_map' | 'ready' | 'go';
+  | 'unlocked' | 'style' | 'correct_n' | 'praise' | 'welcome' | 'tap_map' | 'ready' | 'go'
+  | 'restart' | 'restart_q' | 'restart_txt' | 'restart_yes' | 'cancel';
 
 const KEYS: Key[] = [
   'q_classic', 'q_shape', 'q_find', 'm_classic', 'm_shape', 'm_find', 'm_silhouette',
   'm_blitz', 'm_mixed', 'm_boss', 'level', 'level_done', 'new', 'it_is', 'out_title', 'retry',
   'continue', 'refill', 'paused', 'resume', 'sound', 'music', 'atlas', 'best', 'record', 'time_up',
   'unlocked', 'style', 'correct_n', 'praise', 'welcome', 'tap_map', 'ready', 'go',
+  'restart', 'restart_q', 'restart_txt', 'restart_yes', 'cancel',
 ];
 
 // One line per key, in KEYS order.
@@ -49,7 +51,12 @@ Nice!|Great!|Awesome!|Amazing!|Genius!
 Welcome back!
 Tap on the map
 Ready?
-Go!`,
+Go!
+Restart game
+Restart the game?
+You'll go back to level 1. Your score, countries found and map styles will be reset.
+Yes, restart
+Cancel`,
   es: `¿Qué país es este?
 ¿Cuál es {c}?
 Encuentra {c} en el mapa
@@ -83,7 +90,12 @@ Estilo del mapa
 ¡Bienvenido de nuevo!
 Toca el mapa
 ¿Listo?
-¡Ya!`,
+¡Ya!
+Reiniciar juego
+¿Reiniciar el juego?
+Volverás al nivel 1. Se borrarán tu puntuación, los países descubiertos y los estilos del mapa.
+Sí, reiniciar
+Cancelar`,
   pt: `Que país é este?
 Qual é {c}?
 Encontre {c} no mapa
@@ -117,7 +129,12 @@ Boa!|Ótimo!|Incrível!|Sensacional!|Gênio!
 Bem-vindo de volta!
 Toque no mapa
 Pronto?
-Já!`,
+Já!
+Reiniciar jogo
+Reiniciar o jogo?
+Você volta ao nível 1. Sua pontuação, os países descobertos e os estilos do mapa serão apagados.
+Sim, reiniciar
+Cancelar`,
   fr: `Quel est ce pays ?
 Lequel est {c} ?
 Trouve {c} sur la carte
@@ -151,7 +168,12 @@ Bien !|Super !|Génial !|Incroyable !|Champion !
 Bon retour !
 Touche la carte
 Prêt ?
-Go !`,
+Go !
+Recommencer le jeu
+Recommencer le jeu ?
+Tu reviens au niveau 1. Ton score, tes pays découverts et tes styles de carte seront effacés.
+Oui, recommencer
+Annuler`,
   de: `Welches Land ist das?
 Welches ist {c}?
 Finde {c} auf der Karte
@@ -185,7 +207,12 @@ Gut!|Super!|Klasse!|Wahnsinn!|Genie!
 Willkommen zurück!
 Tippe auf die Karte
 Bereit?
-Los!`,
+Los!
+Spiel neu starten
+Spiel neu starten?
+Du beginnst wieder bei Level 1. Punkte, entdeckte Länder und Kartenstile werden gelöscht.
+Ja, neu starten
+Abbrechen`,
   tr: `Bu hangi ülke?
 Hangisi {c}?
 Haritada bul: {c}
@@ -219,7 +246,12 @@ Güzel!|Harika!|Süper!|Muhteşem!|Dahi!
 Tekrar hoş geldin!
 Haritaya dokun
 Hazır mısın?
-Başla!`,
+Başla!
+Oyunu yeniden başlat
+Oyun yeniden başlatılsın mı?
+Seviye 1'e dönersin. Puanın, keşfedilen ülkeler ve harita stilleri sıfırlanır.
+Evet, yeniden başlat
+Vazgeç`,
   it: `Che paese è questo?
 Qual è {c}?
 Trova {c} sulla mappa
@@ -253,7 +285,12 @@ Bene!|Ottimo!|Fantastico!|Incredibile!|Genio!
 Bentornato!
 Tocca la mappa
 Pronto?
-Via!`,
+Via!
+Ricomincia il gioco
+Ricominciare il gioco?
+Tornerai al livello 1. Punteggio, paesi scoperti e stili della mappa verranno azzerati.
+Sì, ricomincia
+Annulla`,
   nl: `Welk land is dit?
 Welke is {c}?
 Vind {c} op de kaart
@@ -287,7 +324,12 @@ Goed!|Top!|Geweldig!|Fantastisch!|Genie!
 Welkom terug!
 Tik op de kaart
 Klaar?
-Start!`,
+Start!
+Spel opnieuw starten
+Spel opnieuw starten?
+Je begint weer bij level 1. Je score, ontdekte landen en kaartstijlen worden gewist.
+Ja, opnieuw starten
+Annuleren`,
   pl: `Jaki to kraj?
 Gdzie jest {c}?
 Znajdź na mapie: {c}
@@ -321,7 +363,12 @@ Dobrze!|Super!|Świetnie!|Niesamowite!|Geniusz!
 Witaj ponownie!
 Dotknij mapy
 Gotowy?
-Start!`,
+Start!
+Zacznij od nowa
+Zacząć grę od nowa?
+Wrócisz do poziomu 1. Twój wynik, odkryte kraje i style mapy zostaną usunięte.
+Tak, od nowa
+Anuluj`,
   ru: `Что это за страна?
 Где {c}?
 Найди на карте: {c}
@@ -355,7 +402,12 @@ Start!`,
 С возвращением!
 Нажми на карту
 Готов?
-Вперёд!`,
+Вперёд!
+Начать заново
+Начать игру заново?
+Вы вернётесь на уровень 1. Очки, открытые страны и стили карты будут сброшены.
+Да, заново
+Отмена`,
   uk: `Що це за країна?
 Де {c}?
 Знайди на мапі: {c}
@@ -389,7 +441,12 @@ Start!`,
 З поверненням!
 Торкнись мапи
 Готовий?
-Вперед!`,
+Вперед!
+Почати знову
+Почати гру знову?
+Ви повернетеся на рівень 1. Очки, відкриті країни та стилі мапи буде скинуто.
+Так, знову
+Скасувати`,
   id: `Negara apa ini?
 Mana {c}?
 Temukan {c} di peta
@@ -423,7 +480,12 @@ Bagus!|Hebat!|Keren!|Luar biasa!|Jenius!
 Selamat datang kembali!
 Ketuk peta
 Siap?
-Mulai!`,
+Mulai!
+Mulai ulang game
+Mulai ulang game?
+Kamu kembali ke level 1. Skor, negara yang ditemukan, dan gaya peta akan dihapus.
+Ya, mulai ulang
+Batal`,
   vi: `Đây là quốc gia nào?
 Đâu là {c}?
 Tìm {c} trên bản đồ
@@ -457,7 +519,12 @@ Tốt!|Tuyệt!|Xuất sắc!|Đỉnh quá!|Thiên tài!
 Chào mừng trở lại!
 Chạm vào bản đồ
 Sẵn sàng?
-Bắt đầu!`,
+Bắt đầu!
+Chơi lại từ đầu
+Chơi lại từ đầu?
+Bạn sẽ quay lại màn 1. Điểm, các quốc gia đã khám phá và kiểu bản đồ sẽ bị xóa.
+Có, chơi lại
+Hủy`,
   ro: `Ce țară este aceasta?
 Care este {c}?
 Găsește {c} pe hartă
@@ -491,7 +558,12 @@ Bine!|Super!|Grozav!|Uimitor!|Geniu!
 Bine ai revenit!
 Atinge harta
 Gata?
-Start!`,
+Start!
+Reia jocul
+Reiei jocul de la început?
+Te întorci la nivelul 1. Scorul, țările descoperite și stilurile hărții vor fi șterse.
+Da, reia
+Anulează`,
   ar: `ما هذه الدولة؟
 أين {c}؟
 ابحث عن {c} على الخريطة
@@ -525,7 +597,12 @@ Start!`,
 مرحبًا بعودتك!
 المس الخريطة
 مستعد؟
-انطلق!`,
+انطلق!
+إعادة بدء اللعبة
+إعادة بدء اللعبة؟
+ستعود إلى المستوى 1. سيتم مسح نقاطك والدول المكتشفة وأنماط الخريطة.
+نعم، أعد البدء
+إلغاء`,
   ja: `この国はどこ？
 {c}はどれ？
 地図で{c}を探そう
@@ -559,7 +636,12 @@ NEW
 おかえりなさい！
 地図をタップ
 準備はいい？
-スタート！`,
+スタート！
+最初からやり直す
+最初からやり直しますか？
+レベル1に戻ります。スコア、発見した国、地図スタイルはリセットされます。
+やり直す
+キャンセル`,
   hi: `यह कौन सा देश है?
 {c} कौन सा है?
 नक्शे पर {c} ढूँढो
@@ -593,7 +675,12 @@ NEW
 फिर से स्वागत है!
 नक्शे पर टैप करो
 तैयार?
-चलो!`,
+चलो!
+गेम फिर से शुरू करो
+गेम फिर से शुरू करें?
+आप लेवल 1 पर वापस जाएंगे। आपका स्कोर, खोजे गए देश और मैप स्टाइल रीसेट हो जाएंगे।
+हाँ, फिर से शुरू करो
+रद्द करें`,
   th: `นี่คือประเทศอะไร?
 อันไหนคือ {c}?
 หา {c} บนแผนที่
@@ -627,7 +714,12 @@ NEW
 ยินดีต้อนรับกลับมา!
 แตะบนแผนที่
 พร้อมไหม?
-เริ่ม!`,
+เริ่ม!
+เริ่มเกมใหม่
+เริ่มเกมใหม่ไหม?
+คุณจะกลับไปที่ด่าน 1 คะแนน ประเทศที่ค้นพบ และสไตล์แผนที่จะถูกรีเซ็ต
+ใช่ เริ่มใหม่
+ยกเลิก`,
   ko: `이 나라는 어디일까요?
 어느 것이 {c}일까요?
 지도에서 찾기: {c}
@@ -661,7 +753,12 @@ NEW
 다시 오신 걸 환영해요!
 지도를 탭하세요
 준비됐나요?
-시작!`,
+시작!
+처음부터 다시 하기
+처음부터 다시 할까요?
+레벨 1로 돌아가요. 점수, 발견한 나라, 지도 스타일이 초기화돼요.
+네, 다시 할래요
+취소`,
   zh: `这是哪个国家？
 哪个是{c}？
 在地图上找到{c}
@@ -695,7 +792,12 @@ NEW
 欢迎回来！
 点击地图
 准备好了吗？
-开始！`,
+开始！
+重新开始游戏
+要重新开始游戏吗？
+你将回到第1关。分数、已发现的国家和地图风格都会被重置。
+是的，重新开始
+取消`,
   cs: `Jaká je to země?
 Kde je {c}?
 Najdi na mapě: {c}
@@ -729,7 +831,12 @@ Dobře!|Skvěle!|Super!|Úžasné!|Génius!
 Vítej zpět!
 Klepni na mapu
 Připraven?
-Start!`,
+Start!
+Začít znovu
+Začít hru znovu?
+Vrátíš se na úroveň 1. Skóre, objevené země a styly mapy budou smazány.
+Ano, znovu
+Zrušit`,
   hu: `Melyik ország ez?
 Melyik {c}?
 Keresd meg a térképen: {c}
@@ -763,7 +870,12 @@ Szép!|Remek!|Szuper!|Elképesztő!|Zseni!
 Üdv újra!
 Koppints a térképre
 Készen állsz?
-Rajt!`,
+Rajt!
+Újrakezdés
+Újrakezded a játékot?
+Visszakerülsz az 1. szintre. A pontszámod, a felfedezett országok és a térképstílusok törlődnek.
+Igen, újrakezdem
+Mégse`,
   el: `Ποια χώρα είναι αυτή;
 Ποιο σχήμα είναι: {c};
 Βρες στον χάρτη: {c}
@@ -797,7 +909,12 @@ Rajt!`,
 Καλώς ήρθες ξανά!
 Πάτα στον χάρτη
 Έτοιμος;
-Πάμε!`,
+Πάμε!
+Από την αρχή
+Να ξεκινήσει το παιχνίδι από την αρχή;
+Θα επιστρέψεις στο επίπεδο 1. Οι πόντοι, οι χώρες που βρήκες και τα στιλ χάρτη θα διαγραφούν.
+Ναι, από την αρχή
+Άκυρο`,
   sv: `Vilket land är det här?
 Vilken är {c}?
 Hitta {c} på kartan
@@ -831,7 +948,12 @@ Bra!|Snyggt!|Grymt!|Fantastiskt!|Geni!
 Välkommen tillbaka!
 Tryck på kartan
 Redo?
-Kör!`,
+Kör!
+Börja om
+Börja om spelet?
+Du går tillbaka till nivå 1. Poäng, upptäckta länder och kartstilar nollställs.
+Ja, börja om
+Avbryt`,
 };
 
 function languages(): string[] {

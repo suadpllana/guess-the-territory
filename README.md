@@ -52,13 +52,13 @@ The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause m
 | Rewarded: video icon, not green, free option, no reward if blocked | 🎬 icon, orange button; "Try again" is always shown; hidden when the SDK is blocked or failed |
 | Mute + block input during ads | `adStarted()` mutes the WebAudio master and shows an input blocker |
 | Playable with SDK blocked | Every call no-ops; tested with the SDK unreachable |
-| Game Events | `level NN start/complete/fail` (fail = died, so Poki's "left" means quit without dying), `game over level-NN`, `game input first`, `mode <id> first`, `hint token/rewarded used`, `reward continue granted`, `streak N reached`, `atlas N reached`, `unlock theme <id>`, `bonus blitz …`, `menu pause open` (no `/` or `^`, values ≤ 60 chars) |
+| Game Events | `level NN start/complete/fail` (fail = died, so Poki's "left" means quit without dying), `game over level-NN`, `game restart level-NN`, `game input first`, `mode <id> first`, `hint token/rewarded used`, `reward continue granted`, `streak N reached`, `atlas N reached`, `unlock theme <id>`, `bonus blitz …`, `menu pause open` (no `/` or `^`, values ≤ 60 chars) |
 | `captureError` | Global `error` / `unhandledrejection` handlers |
 | Full screen, every aspect ratio | Canvas covers the screen; bottom sheet in portrait, side card in landscape; checked at 640×360, 836×470, 1031×580, 1280×720, 390×844, 844×390 |
 | Poki pill (mobile, top-left) | HUD and prompt keep a 58 px gap on touch devices |
 | Touch detection by primary pointer | touch AND NOT `(hover: hover) and (pointer: fine)`; switches on the first real touch |
 | Block zoom / scroll / context menu | `touch-action: none`, `gesturestart`/`dblclick`/`contextmenu` prevented, Space/arrow scroll prevented |
-| Pause (button + Esc/P) | Pause card with sound, music, map style, atlas and build number |
+| Pause (button + Esc/P) | Pause card with sound, music, map style, atlas, "Restart game" (asks to confirm; wipes progress but keeps sound settings) and build number |
 | Tab hidden → pause, stop, mute | `visibilitychange` → pause card, `gameplayStop`, audio suspended |
 | Audio after first gesture, toggles | WebAudio unlocked on first input; sound and music toggles are saved |
 | `localStorage` in try/catch, stable key | `src/storage.ts`, key `mappop.v1` (keep it stable) |

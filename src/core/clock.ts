@@ -41,6 +41,14 @@ export const clock = {
   wait(ms: number): Promise<void> {
     return new Promise((resolve) => timers.add({ at: now + ms, resolve }));
   },
+  /**
+   * Drops every pending timer and tween without resolving it, so whatever
+   * awaits them never continues (used to abandon a run on restart).
+   */
+  cancelAll(): void {
+    timers.clear();
+    tweens.clear();
+  },
   tween(ms: number, fn: (t: number) => void): Promise<void> {
     return new Promise((resolve) => {
       fn(0);

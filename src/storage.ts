@@ -43,14 +43,19 @@ export const DEFAULT_SAVE: SaveData = {
   stars: {},
 };
 
+/** A first-visit save with its own arrays and objects (never shares DEFAULT_SAVE's). */
+export function freshSave(): SaveData {
+  return JSON.parse(JSON.stringify(DEFAULT_SAVE)) as SaveData;
+}
+
 export function loadSave(): SaveData {
   try {
     const raw = window.localStorage.getItem(KEY);
-    if (!raw) return { ...DEFAULT_SAVE };
+    if (!raw) return freshSave();
     const parsed = JSON.parse(raw) as Partial<SaveData>;
-    return { ...DEFAULT_SAVE, ...parsed };
+    return { ...freshSave(), ...parsed };
   } catch {
-    return { ...DEFAULT_SAVE };
+    return freshSave();
   }
 }
 
