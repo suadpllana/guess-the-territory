@@ -507,7 +507,7 @@ export class UI {
     const resume = el('button', 'btn primary big', `${ICON.play}<span></span>`);
     (resume.querySelector('span') as HTMLElement).textContent = t('resume');
     resume.addEventListener('click', h.resume);
-    const restart = el('button', 'link-btn restart', `${ICON.retry}<span></span>`);
+    const restart = el('button', 'btn restart', `${ICON.retry}<span></span>`);
     (restart.querySelector('span') as HTMLElement).textContent = t('restart');
     restart.addEventListener('click', () => this.confirmRestart(d, h));
     const build = el('div', 'build');

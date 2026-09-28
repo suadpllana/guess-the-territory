@@ -1282,27 +1282,15 @@ button {
   box-shadow: 0 calc(var(--u) * 0.25) 0 #b8202f;
 }
 
-.link-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: calc(var(--u) * 0.35);
-  align-self: center;
-  justify-self: center;
-  padding: calc(var(--u) * 0.35) calc(var(--u) * 0.8);
-  border-radius: 99px;
-  font-weight: 800;
-  font-size: calc(var(--u) * 0.85);
-  color: var(--muted);
+.btn.restart {
+  min-height: calc(var(--u) * 2.9);
+  background: linear-gradient(180deg, #fff1f2, #ffe1e4);
+  color: #e0364a;
+  box-shadow: 0 calc(var(--u) * 0.25) 0 #f7b9c0;
 }
 
-.link-btn svg {
-  width: calc(var(--u) * 1);
-  height: calc(var(--u) * 1);
-}
-
-.link-btn:active {
-  background: #eef1f8;
+.landscape .btn.restart {
+  min-height: calc(var(--u) * 3.4);
 }
 
 .confirm-card {
