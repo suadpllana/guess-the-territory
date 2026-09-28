@@ -5,7 +5,7 @@ import { kmPerUnit, type Feature, type World } from '../geo/world';
 import type { SaveData } from '../storage';
 import { DIFFICULTY, MAX_DIFFICULTY, POKI_AUDIENCE } from './countries';
 
-export type Mode = 'classic' | 'reveal' | 'shape' | 'find' | 'silhouette' | 'blitz';
+export type Mode = 'classic' | 'shape' | 'find' | 'silhouette' | 'blitz';
 
 export interface Question {
   mode: Mode;
@@ -54,7 +54,6 @@ export function distanceKm(a: Feature, b: Feature): number {
 
 const MODE_OK: Record<Mode, (f: Feature) => boolean> = {
   classic: () => true,
-  reveal: () => true,
   blitz: () => true,
   silhouette: (f) => f.area >= 1500,
   shape: (f) => f.area >= 1500,

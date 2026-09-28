@@ -31,7 +31,6 @@ interface Plan {
 
 const MODE_ICON: Record<Intro, string> = {
   classic: ICON.map,
-  reveal: ICON.bolt,
   shape: ICON.puzzle,
   find: ICON.hand,
   silhouette: ICON.shape,
@@ -42,7 +41,6 @@ const MODE_ICON: Record<Intro, string> = {
 
 const MODE_TEXT = {
   classic: 'm_classic',
-  reveal: 'm_reveal',
   shape: 'm_shape',
   find: 'm_find',
   silhouette: 'm_silhouette',
@@ -59,22 +57,20 @@ const BOSS_POOLS: ((f: Feature) => boolean)[] = [
   (f) => f.area < 60000,
 ];
 
-const MIXED: Mode[] = ['classic', 'find', 'reveal', 'shape', 'classic', 'silhouette', 'find', 'reveal'];
+const MIXED: Mode[] = ['classic', 'find', 'classic', 'shape', 'classic', 'silhouette', 'find', 'shape'];
 
 export function planFor(level: number): Plan {
   switch (level) {
     case 1:
       return { level, rounds: 5, modes: ['classic'], cap: 2.5, bonus: false, intro: 'classic' };
     case 2:
-      return { level, rounds: 6, modes: ['reveal'], cap: 3, bonus: false, intro: 'reveal' };
+      return { level, rounds: 6, modes: ['shape'], cap: 3, bonus: false, intro: 'shape' };
     case 3:
-      return { level, rounds: 6, modes: ['shape'], cap: 3.5, bonus: true, intro: 'shape' };
+      return { level, rounds: 7, modes: ['find'], cap: 3.5, bonus: true, intro: 'find' };
     case 4:
-      return { level, rounds: 7, modes: ['find'], cap: 4, bonus: false, intro: 'find' };
-    case 5:
-      return { level, rounds: 7, modes: ['silhouette'], cap: 4.5, bonus: false, intro: 'silhouette' };
+      return { level, rounds: 7, modes: ['silhouette'], cap: 4, bonus: false, intro: 'silhouette' };
   }
-  const boss = level % 5 === 0;
+  const boss = level >= 10 && level % 5 === 0;
   const rot = level % MIXED.length;
   return {
     level,
@@ -115,7 +111,6 @@ export class Game {
   private skip: (() => void) | null = null;
   private collected: Set<string>;
   private recordShown = false;
-  private reveal: { from: View; to: View; t0: number; dur: number } | null = null;
   private blitzEnd = 0;
   private lastTick = -1;
   private tileStyle: 'map' | 'shape' = 'map';
@@ -313,7 +308,7 @@ export class Game {
   onResize(): void {
     this.relayout();
     const f = this.map.target;
-    if (f && this.map.home && !this.reveal) {
+    if (f && this.map.home) {
       const q = this.currentQ;
       const home = q?.mode === 'find' ? this.map.frameMany(this.map.candidates, 0.85) : this.map.frame(f, this.map.silhouette ? 0.78 : 0.72);
       this.map.home = home;
@@ -336,14 +331,6 @@ export class Game {
   /** Per-frame work driven by game time. */
   tick(): void {
     if (clock.paused) return;
-    if (this.reveal) {
-      const r = this.reveal;
-      const k = Math.min(1, (clock.now - r.t0) / r.dur);
-      const e = 1 - (1 - k) * (1 - k);
-      this.map.jump({ x: r.from.x + (r.to.x - r.from.x) * e, y: r.from.y + (r.to.y - r.from.y) * e, z: r.from.z + (r.to.z - r.from.z) * e });
-      this.ui.setTimer(1 - k, k > 0.75);
-      if (k >= 1) this.reveal = null;
-    }
     if (this.blitzEnd) {
       const left = this.blitzEnd - clock.now;
       this.ui.setTimer(left / 20000, left < 5000);
@@ -393,7 +380,7 @@ export class Game {
       kicker: t('level', { n: plan.level }),
       title: t(MODE_TEXT[key]),
       ms: first ? 1500 : 1050,
-      tone: key === 'boss' ? 'gold' : key === 'reveal' ? 'hot' : '',
+      tone: key === 'boss' ? 'gold' : '',
     });
   }
 
@@ -502,16 +489,10 @@ export class Game {
     } else {
       this.map.setTarget(f, 'ask');
       sound.whoosh();
-      const start = q.mode === 'reveal' ? this.revealStart(f, home) : home;
-      arrived = this.map.flyTo(start).then(() => {
+      arrived = this.map.flyTo(home).then(() => {
         this.map.dropPin();
         sound.pin();
-        if (q.mode === 'reveal' && this.ui.picking) {
-          this.reveal = { from: { ...this.map.view }, to: home, t0: clock.now, dur: 6500 };
-          this.ui.setTimer(1);
-        } else if (this.ui.picking) {
-          this.map.limits = this.limitsFor(home);
-        }
+        if (this.ui.picking) this.map.limits = this.limitsFor(home);
       });
     }
     let seenAt = sil ? clock.now : Infinity;
@@ -530,14 +511,6 @@ export class Game {
     window.clearTimeout(hintTimer);
     this.ui.showTapHint(false);
     const elapsed = Math.max(0, clock.now - seenAt);
-    let points: number | undefined;
-    if (q.mode === 'reveal') {
-      const r = this.reveal;
-      const k = r ? Math.min(1, (clock.now - r.t0) / r.dur) : this.map.view.z > home.z + 0.05 ? 0 : 1;
-      points = Math.round((100 + 200 * (1 - k)) / 10) * 10;
-    }
-    this.reveal = null;
-    this.ui.setTimer(null);
     this.map.limits = null;
     this.ui.setLocate(false);
     this.refreshHint(false);
@@ -548,7 +521,7 @@ export class Game {
     q.options.forEach((_, i) => {
       if (i !== pick && i !== right) this.ui.markOption(i, 'dim');
     });
-    this.feedback(f, correct, this.ui.optionCenter(pick), { points, fast: elapsed < 3000 });
+    this.feedback(f, correct, this.ui.optionCenter(pick), { fast: elapsed < 3000 });
     await arrived;
     if (!sil && (this.map.isAway() || Math.abs(this.map.view.z - home.z) > 0.05)) await this.map.flyTo(home, 650);
     return this.settle(f, correct, true, false, q.options[pick]);
@@ -558,14 +531,6 @@ export class Game {
   private zCap(y: number): number {
     const minSpan = 140 / kmPerUnit(y);
     return Math.log2(Math.min(this.map.vp.w, this.map.vp.h) / minSpan);
-  }
-
-  private revealStart(f: Feature, home: View): View {
-    const z = Math.max(home.z + 0.8, Math.min(home.z + 2.3, this.zCap(f.label[1])));
-    const s = 2 ** home.z;
-    // start near the label point, nudged so a border is likely in view
-    const jitter = (Math.min(this.map.vp.w, this.map.vp.h) / s) * 0.12;
-    return { x: f.label[0] + (Math.random() - 0.5) * jitter, y: f.label[1] + (Math.random() - 0.5) * jitter, z };
   }
 
   private async roundShape(q: Question): Promise<boolean> {

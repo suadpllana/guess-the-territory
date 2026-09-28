@@ -4,7 +4,7 @@ A Google-Maps-style geography game for [Poki](https://developers.poki.com). The 
 
 ![Map Pop](store/logo-tagline.png)
 
-- **One rule, six ways to play:** classic, zoom reveal (answer fast for more points), pick the shape, find it on the map, silhouette, and a 20-second blitz bonus. After that it's an endless ladder of mixed and boss levels.
+- **One rule, five ways to play:** classic, pick the shape, find it on the map, silhouette, and a 20-second blitz bonus. After that it's an endless ladder of mixed and boss levels.
 - **Built for playtime:** you're in the game from the first frame, with your home country as a guaranteed first win within seconds. A new mode arrives every level (~40 s). You get 3 hearts per level; losing all 3 is game over and the next run starts again at level 1 (a rewarded ad can continue the run in the ads build). There are run scores with a saved best, streak multipliers, an atlas of countries to collect, and map styles to unlock.
 - **Worldwide:** country names appear in the player's own language through the browser (`Intl.DisplayNames`), and the UI is in 24 languages. Borders follow the player's own country's view where it is disputed (India, Pakistan, China, Morocco, Argentina, Turkey and others).
 - **Poki-ready:** `index.html` + one JS + one CSS, about **250 KB zipped**. There are no external requests except the Poki SDK, and every item on the SDK checklist is covered (see below).
@@ -67,7 +67,7 @@ The build number (`v1.0.0-<commit>`) is shown small at the bottom of the pause m
 ### Design rules from the playtime checklist
 
 - **First 60 s:** the first frame is already moving (the world turns toward your home country). There is no title screen, and nothing can hurt you before your first input. The first question is your own country with obviously wrong options, answered with a big win moment: confetti, chime, "+150", "NEW".
-- **Minutes 1–5:** each of the first five levels (~40 s each) introduces one new way to play with a one-second pictogram banner, and a blitz bonus follows level 3. Cards stay ≤ 1 s early on, the next level starts automatically, and progress dots always show what's left. Difficulty is capped per level, so the first real skill test comes around minute 3.
+- **Minutes 1–5:** each of the first four levels (~40 s each) introduces one new way to play with a one-second pictogram banner, and a blitz bonus follows level 3. Cards stay ≤ 1 s early on, the next level starts automatically, and progress dots always show what's left. Difficulty is capped per level, so the first real skill test comes around minute 3.
 - **Tail:** endless mixed levels, boss levels every 5, blitz every 3, an atlas of 198 countries and five unlockable map styles. Adaptive difficulty targets roughly 80% success (checked with `npm run sim`: about 70% for novices, 80% for average players and 93% for experts), and missed countries come back a few rounds later.
 
 ### Question order

@@ -2,13 +2,13 @@
 // language from the browser (Intl.DisplayNames), with English as fallback.
 
 type Key =
-  | 'q_classic' | 'q_shape' | 'q_find' | 'm_classic' | 'm_reveal' | 'm_shape' | 'm_find' | 'm_silhouette'
+  | 'q_classic' | 'q_shape' | 'q_find' | 'm_classic' | 'm_shape' | 'm_find' | 'm_silhouette'
   | 'm_blitz' | 'm_mixed' | 'm_boss' | 'level' | 'level_done' | 'new' | 'it_is' | 'out_title' | 'retry'
   | 'continue' | 'refill' | 'paused' | 'resume' | 'sound' | 'music' | 'atlas' | 'best' | 'record' | 'time_up'
   | 'unlocked' | 'style' | 'correct_n' | 'praise' | 'welcome' | 'tap_map' | 'ready' | 'go';
 
 const KEYS: Key[] = [
-  'q_classic', 'q_shape', 'q_find', 'm_classic', 'm_reveal', 'm_shape', 'm_find', 'm_silhouette',
+  'q_classic', 'q_shape', 'q_find', 'm_classic', 'm_shape', 'm_find', 'm_silhouette',
   'm_blitz', 'm_mixed', 'm_boss', 'level', 'level_done', 'new', 'it_is', 'out_title', 'retry',
   'continue', 'refill', 'paused', 'resume', 'sound', 'music', 'atlas', 'best', 'record', 'time_up',
   'unlocked', 'style', 'correct_n', 'praise', 'welcome', 'tap_map', 'ready', 'go',
@@ -20,7 +20,6 @@ const TABLES: Record<string, string> = {
 Which one is {c}?
 Find {c} on the map
 Guess the country!
-Fast answer, big points!
 Pick the right shape!
 Find it on the map!
 Just the shape!
@@ -55,7 +54,6 @@ Go!`,
 ¿Cuál es {c}?
 Encuentra {c} en el mapa
 ¡Adivina el país!
-¡Responde rápido, gana más!
 ¡Elige la forma correcta!
 ¡Encuéntralo en el mapa!
 ¡Solo la silueta!
@@ -90,7 +88,6 @@ Toca el mapa
 Qual é {c}?
 Encontre {c} no mapa
 Adivinhe o país!
-Responda rápido, ganhe mais!
 Escolha a forma certa!
 Encontre no mapa!
 Só a silhueta!
@@ -125,7 +122,6 @@ Já!`,
 Lequel est {c} ?
 Trouve {c} sur la carte
 Devine le pays !
-Réponds vite, gagne gros !
 Choisis la bonne forme !
 Trouve-le sur la carte !
 Juste la silhouette !
@@ -160,7 +156,6 @@ Go !`,
 Welches ist {c}?
 Finde {c} auf der Karte
 Errate das Land!
-Schnell antworten, mehr Punkte!
 Wähle die richtige Form!
 Finde es auf der Karte!
 Nur die Umrisse!
@@ -195,7 +190,6 @@ Los!`,
 Hangisi {c}?
 Haritada bul: {c}
 Ülkeyi tahmin et!
-Hızlı cevap, çok puan!
 Doğru şekli seç!
 Haritada bul!
 Sadece şekil!
@@ -230,7 +224,6 @@ Başla!`,
 Qual è {c}?
 Trova {c} sulla mappa
 Indovina il paese!
-Rispondi veloce, più punti!
 Scegli la forma giusta!
 Trovalo sulla mappa!
 Solo la sagoma!
@@ -265,7 +258,6 @@ Via!`,
 Welke is {c}?
 Vind {c} op de kaart
 Raad het land!
-Snel antwoorden, meer punten!
 Kies de juiste vorm!
 Vind het op de kaart!
 Alleen de vorm!
@@ -300,7 +292,6 @@ Start!`,
 Gdzie jest {c}?
 Znajdź na mapie: {c}
 Zgadnij kraj!
-Szybka odpowiedź, więcej punktów!
 Wybierz właściwy kształt!
 Znajdź na mapie!
 Tylko kształt!
@@ -335,7 +326,6 @@ Start!`,
 Где {c}?
 Найди на карте: {c}
 Угадай страну!
-Быстрее — больше очков!
 Выбери верный контур!
 Найди на карте!
 Только контур!
@@ -370,7 +360,6 @@ Start!`,
 Де {c}?
 Знайди на мапі: {c}
 Вгадай країну!
-Швидше — більше балів!
 Обери правильний контур!
 Знайди на мапі!
 Лише контур!
@@ -405,7 +394,6 @@ Start!`,
 Mana {c}?
 Temukan {c} di peta
 Tebak negaranya!
-Jawab cepat, poin besar!
 Pilih bentuk yang benar!
 Temukan di peta!
 Hanya bentuknya!
@@ -440,7 +428,6 @@ Mulai!`,
 Đâu là {c}?
 Tìm {c} trên bản đồ
 Đoán quốc gia!
-Trả lời nhanh, điểm cao!
 Chọn đúng hình dạng!
 Tìm trên bản đồ!
 Chỉ có hình dạng!
@@ -475,7 +462,6 @@ Bắt đầu!`,
 Care este {c}?
 Găsește {c} pe hartă
 Ghicește țara!
-Răspunde rapid, mai multe puncte!
 Alege forma corectă!
 Găsește-o pe hartă!
 Doar conturul!
@@ -510,7 +496,6 @@ Start!`,
 أين {c}؟
 ابحث عن {c} على الخريطة
 خمّن الدولة!
-أجب بسرعة لنقاط أكثر!
 اختر الشكل الصحيح!
 جدها على الخريطة!
 الشكل فقط!
@@ -545,7 +530,6 @@ Start!`,
 {c}はどれ？
 地図で{c}を探そう
 国を当てよう！
-早く答えると高得点！
 正しい形を選ぼう！
 地図で探そう！
 形だけ！
@@ -580,7 +564,6 @@ NEW
 {c} कौन सा है?
 नक्शे पर {c} ढूँढो
 देश का अनुमान लगाओ!
-जल्दी जवाब, ज़्यादा अंक!
 सही आकार चुनो!
 नक्शे पर ढूँढो!
 सिर्फ़ आकार!
@@ -615,7 +598,6 @@ NEW
 อันไหนคือ {c}?
 หา {c} บนแผนที่
 ทายชื่อประเทศ!
-ตอบเร็ว ได้คะแนนมาก!
 เลือกรูปร่างให้ถูก!
 หาบนแผนที่!
 แค่รูปร่าง!
@@ -650,7 +632,6 @@ NEW
 어느 것이 {c}일까요?
 지도에서 찾기: {c}
 나라를 맞혀 보세요!
-빨리 맞힐수록 높은 점수!
 올바른 모양을 고르세요!
 지도에서 찾아보세요!
 모양만 보고!
@@ -685,7 +666,6 @@ NEW
 哪个是{c}？
 在地图上找到{c}
 猜猜这是哪个国家！
-答得越快，分数越高！
 选出正确的形状！
 在地图上找一找！
 只看形状！
@@ -720,7 +700,6 @@ NEW
 Kde je {c}?
 Najdi na mapě: {c}
 Hádej zemi!
-Rychlá odpověď, víc bodů!
 Vyber správný tvar!
 Najdi to na mapě!
 Jen obrys!
@@ -755,7 +734,6 @@ Start!`,
 Melyik {c}?
 Keresd meg a térképen: {c}
 Találd ki az országot!
-Gyors válasz, több pont!
 Válaszd ki a jó formát!
 Keresd meg a térképen!
 Csak a forma!
@@ -790,7 +768,6 @@ Rajt!`,
 Ποιο σχήμα είναι: {c};
 Βρες στον χάρτη: {c}
 Μάντεψε τη χώρα!
-Γρήγορη απάντηση, περισσότεροι πόντοι!
 Διάλεξε το σωστό σχήμα!
 Βρες το στον χάρτη!
 Μόνο το σχήμα!
@@ -825,7 +802,6 @@ Rajt!`,
 Vilken är {c}?
 Hitta {c} på kartan
 Gissa landet!
-Snabbt svar, fler poäng!
 Välj rätt form!
 Hitta det på kartan!
 Bara formen!

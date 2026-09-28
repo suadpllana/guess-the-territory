@@ -74,7 +74,7 @@ while (Date.now() - t0 < 420000) {
     continue;
   }
   if (s.picking) {
-    await page.waitForTimeout(s.mode === 'reveal' ? 500 : 250);
+    await page.waitForTimeout(250);
     await snap(`L${s.level}-${s.blitz ? 'blitz' : s.mode}-ask`);
     const correct = Math.random() < accuracy;
     const idx = correct ? s.idx : (s.idx + 1) % s.n;

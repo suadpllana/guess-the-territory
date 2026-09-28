@@ -93,7 +93,7 @@ const fail = (m) => {
   const level = await page.evaluate(() => window.__game.level);
   console.log(`playthrough: reached level ${level} after ${answered} answers; modes seen: ${[...modes].join(', ')}`);
   if (level < 5) fail('did not reach level 5');
-  for (const m of ['classic', 'reveal', 'shape', 'blitz', 'find']) if (!modes.has(m)) fail('mode never played: ' + m);
+  for (const m of ['classic', 'shape', 'blitz', 'find', 'silhouette']) if (!modes.has(m)) fail('mode never played: ' + m);
   if (errors.length) fail('page errors: ' + errors.join('; '));
   await page.close();
 }
